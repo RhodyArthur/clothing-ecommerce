@@ -32,7 +32,7 @@ export class Home implements OnInit{
       label: 'Accessories',
       subtitle: 'Complete Your Look',
       query: 'accessories',
-      image: 'assets/images/category-accessories.jpg'
+      image: 'assets/images/accessories.jpg'
     }
   ];
 
