@@ -1,0 +1,141 @@
+<header
+  class="sticky top-0 z-50 bg-white transition-shadow duration-200"
+  [class.shadow-sm]="scrolled()"
+  [class.border-b]="scrolled()"
+  [class.border-gray-200]="scrolled()"
+>
+  <div class="flex items-center justify-between w-full max-w-screen-2xl mx-auto px-8 h-17">
+    <!-- Logo -->
+    <a routerLink="/" class="text-[1.1rem] font-bold tracking-widest text-gray-900 no-underline">
+      TheFooseGuy
+    </a>
+
+    <!-- Desktop nav links -->
+    <nav class="hidden md:flex items-center gap-10">
+      @for (link of navLinks; track link.label) {
+        <a
+          class="text-sm text-gray-900 no-underline relative pb-0.5 after:absolute after:bottom-0 after:left-0 after:h-px after:w-0 after:bg-gray-900 after:transition-all after:duration-200 hover:after:w-full"
+          [routerLink]="link.path"
+          [queryParams]="link.query"
+          routerLinkActive="after:w-full"
+        >
+          {{ link.label }}
+        </a>
+      }
+    </nav>
+
+    <!-- Desktop icons -->
+    <div class="hidden md:flex items-center gap-2">
+      <!-- Search -->
+      <a
+        routerLink="/products"
+        class="flex items-center justify-center w-10 h-10 rounded-xl text-gray-900 hover:bg-gray-100 transition-colors"
+        aria-label="Search"
+      >
+        <i class="pi pi-search text-[20px]"></i>
+      </a>
+
+      <!-- Account -->
+      <a
+        [routerLink]="auth.currentUser() ? '/orders' : '/auth/login'"
+        class="flex items-center justify-center w-10 h-10 rounded-xl text-gray-900 hover:bg-gray-100 transition-colors"
+        aria-label="Account"
+      >
+        <i class="pi pi-user text-[20px]"></i>
+      </a>
+
+      <!-- Wishlist -->
+      <a
+        routerLink="/wishlist"
+        class="relative flex items-center justify-center w-10 h-10 rounded-xl text-gray-900 hover:bg-gray-100 transition-colors"
+        aria-label="Wishlist"
+      >
+        <i class="pi pi-heart text-[20px]"></i>
+        <!-- @if (wishlistCount() > 0) {
+          <span class="absolute top-1 right-1 min-w-[16px] h-4 px-1 bg-gray-900 text-white text-[10px] font-semibold rounded-full flex items-center justify-center">
+            {{ wishlistCount() }}
+          </span>
+        } -->
+      </a>
+
+      <!-- Cart -->
+      <a
+        routerLink="/cart"
+        class="relative flex items-center justify-center w-10 h-10 rounded-xl text-gray-900 hover:bg-gray-100 transition-colors"
+        aria-label="Cart"
+      >
+        <i class="pi pi-shopping-cart text-[20px]"></i>
+        <!-- @if (cartCount() > 0) {
+          <span class="absolute top-1 right-1 min-w-[16px] h-4 px-1 bg-gray-900 text-white text-[10px] font-semibold rounded-full flex items-center justify-center">
+            {{ cartCount() }}
+          </span>
+        } -->
+      </a>
+    </div>
+
+    <!-- Mobile hamburger -->
+    <button
+      class="flex md:hidden items-center justify-center p-1 text-gray-900 bg-transparent border-none cursor-pointer"
+      (click)="toggleMobileMenu()"
+      aria-label="Menu"
+    >
+      @if (mobileMenuOpen()) {
+        <i class="pi pi-times text-[22px]"></i>
+      } @else {
+        <i class="pi pi-bars text-[22px]"></i>
+      }
+    </button>
+  </div>
+
+  <!-- Mobile menu -->
+  @if (mobileMenuOpen()) {
+    <nav
+      class="md:hidden absolute inset-x-0 top-full flex flex-col border-t border-gray-200 bg-white py-2 shadow-md z-50"
+    >
+      @for (link of navLinks; track link.label) {
+        <a
+          class="px-8 py-3 text-[0.95rem] text-gray-900 no-underline hover:bg-gray-50 transition-colors"
+          [routerLink]="link.path"
+          [queryParams]="link.query"
+          (click)="mobileMenuOpen.set(false)"
+        >
+          {{ link.label }}
+        </a>
+      }
+      <hr class="my-2 mx-8 border-gray-200" />
+      <a
+        routerLink="/wishlist"
+        class="px-8 py-3 text-[0.95rem] text-gray-900 no-underline hover:bg-gray-50"
+        (click)="mobileMenuOpen.set(false)"
+        >Wishlist</a
+      >
+      <a
+        routerLink="/cart"
+        class="px-8 py-3 text-[0.95rem] text-gray-900 no-underline hover:bg-gray-50"
+        (click)="mobileMenuOpen.set(false)"
+        >Cart</a
+      >
+      @if (auth.currentUser()) {
+        <a
+          routerLink="/orders"
+          class="px-8 py-3 text-[0.95rem] text-gray-900 no-underline hover:bg-gray-50"
+          (click)="mobileMenuOpen.set(false)"
+          >My Orders</a
+        >
+        <button
+          class="px-8 py-3 text-left text-[0.95rem] text-gray-400 bg-transparent border-none cursor-pointer hover:bg-gray-50"
+          (click)="signOut()"
+        >
+          Sign Out
+        </button>
+      } @else {
+        <a
+          routerLink="/auth/login"
+          class="px-8 py-3 text-[0.95rem] text-gray-900 no-underline hover:bg-gray-50"
+          (click)="mobileMenuOpen.set(false)"
+          >Sign In</a
+        >
+      }
+    </nav>
+  }
+</header>
