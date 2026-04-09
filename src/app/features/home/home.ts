@@ -4,10 +4,11 @@ import { Product } from '../../core/services/product';
 import { Wishlist } from '../../core/services/wishlist';
 import { RouterLink } from '@angular/router';
 import { CurrencyPipe } from '@angular/common';
+import { SkeletonModule } from 'primeng/skeleton';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterLink, CurrencyPipe],
+  imports: [RouterLink, CurrencyPipe, SkeletonModule],
   templateUrl: './home.html',
 })
 export class Home implements OnInit{
