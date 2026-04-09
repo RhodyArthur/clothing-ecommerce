@@ -17,35 +17,17 @@
        MOBILE: Filter button + sort row
   ══════════════════════════════════════════ -->
   <div class="flex items-center gap-3 mb-6 md:hidden">
-    <button
-      (click)="openFilters()"
-      style="
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        padding: 7px 14px;
-        border: 1px solid #d1d5db;
-        border-radius: 6px;
-        background: #fff;
-        font-size: 0.875rem;
-        color: #374151;
-        cursor: pointer;
-      "
-    >
-      <i class="pi pi-sliders-h"></i>
-      Filters
+    <div class="flex items-center gap-1.5">
+      <p-button
+        label="Filters"
+        icon="pi pi-sliders-h"
+        class="p-button-outlined"
+        (onClick)="openFilters()"
+      ></p-button>
       @if (hasActiveFilters()) {
-        <span
-          style="
-            width: 7px;
-            height: 7px;
-            background: #1a1a1a;
-            border-radius: 50%;
-            display: inline-block;
-          "
-        ></span>
+        <span class="w-2 h-2 bg-[#1a1a1a] rounded-full inline-block ml-2"></span>
       }
-    </button>
+    </div>
 
     <p-select
       [options]="sortOptions"
@@ -53,7 +35,7 @@
       optionValue="value"
       [ngModel]="sortBy()"
       (ngModelChange)="sortBy.set($event)"
-      style="flex: 1"
+      class="flex-1"
     ></p-select>
   </div>
 
@@ -69,7 +51,6 @@
     class="md:hidden"
     (onHide)="closeFilters()"
   >
-
     <ng-container *ngTemplateOutlet="filterContent"></ng-container>
   </p-drawer>
 
@@ -78,16 +59,16 @@
   ══════════════════════════════════════════ -->
   <div class="flex gap-10">
     <!-- Desktop sidebar (hidden on mobile) -->
-    <aside class="hidden md:block" style="width: 200px; flex-shrink: 0">
+    <aside class="hidden md:block w-50 shrink-0">
       <!-- Sort -->
-      <div style="margin-bottom: 28px">
+      <div class="mb-7">
         <p-select
           [options]="sortOptions"
           optionLabel="label"
           optionValue="value"
           [ngModel]="sortBy()"
           (ngModelChange)="sortBy.set($event)"
-          style="width: 100%"
+          class="w-full"
         ></p-select>
       </div>
 
@@ -97,66 +78,32 @@
     <!-- ══════════════════════════════════════════
          PRODUCT GRID
     ══════════════════════════════════════════ -->
-    <div style="flex: 1; min-width: 0">
+    <div class="flex-1 min-w-0">
       <!-- Loading skeletons -->
       @if (productService.loading()) {
         <div class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
           @for (n of [1, 2, 3, 4, 5, 6]; track n) {
             <div>
-              <div
-                class="animate-pulse bg-gray-200 rounded-sm w-full mb-3"
-                style="aspect-ratio: 3/4"
-              ></div>
-              <div class="animate-pulse bg-gray-200 h-3 rounded mb-2" style="width: 70%"></div>
-              <div class="animate-pulse bg-gray-200 h-3 rounded" style="width: 35%"></div>
+              <p-skeleton width="100%" height="7rem" class="mb-2"></p-skeleton>
+              <p-skeleton shape="rectangle" width="6.25rem" class="mb-2"></p-skeleton>
+              <p-skeleton width="35%" height="0.75rem"></p-skeleton>
             </div>
           }
         </div>
 
         <!-- Empty state -->
       } @else if (filteredProducts().length === 0) {
-        <div
-          style="
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 80px 0;
-            text-align: center;
-          "
-        >
-          <svg
-            width="48"
-            height="48"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#d1d5db"
-            stroke-width="1.5"
-            style="margin-bottom: 16px"
-          >
-            <circle cx="11" cy="11" r="8" />
-            <path d="m21 21-4.35-4.35" />
-          </svg>
-          <p style="font-size: 1rem; font-weight: 500; color: #374151; margin-bottom: 6px">
-            No products found
-          </p>
-          <p style="font-size: 0.875rem; color: #9ca3af; margin-bottom: 20px">
-            Try adjusting your filters
-          </p>
-          <button
-            (click)="clearFilters()"
-            style="
-              padding: 8px 20px;
-              border: 1px solid #1a1a1a;
-              border-radius: 4px;
-              background: #fff;
-              font-size: 0.875rem;
-              color: #1a1a1a;
-              cursor: pointer;
-            "
-          >
-            Clear Filters
-          </button>
+        <div class="flex flex-col items-center justify-center py-20 text-center">
+          <i class="pi pi-search text-[2.5rem] mb-4"></i>
+
+          <p class="text-base font-medium text-gray-700 mb-2">No products found</p>
+          <p class="text-sm text-gray-400 mb-5">Try adjusting your filters</p>
+          <p-button
+            label="Clear Filters"
+            severity="secondary"
+            [outlined]="true"
+            (onClick)="clearFilters()"
+          ></p-button>
         </div>
 
         <!-- Products -->
@@ -165,79 +112,33 @@
           @for (product of filteredProducts(); track product.id) {
             <a
               [routerLink]="['/products', product.id]"
-              style="display: block; text-decoration: none; color: inherit"
-              class="group"
+              class="group block no-underline text-inherit"
             >
               <!-- Image -->
-              <div
-                style="
-                  position: relative;
-                  overflow: hidden;
-                  border-radius: 2px;
-                  background: #f3f4f6;
-                  margin-bottom: 10px;
-                "
-                [style.aspect-ratio]="'3/4'"
-              >
+              <div class="relative overflow-hidden rounded-sm bg-gray-100 mb-2.5 aspect-square">
                 <img
                   [src]="product.image_urls[0] || 'assets/images/placeholder.jpg'"
                   [alt]="product.name"
-                  style="
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
-                    transition: transform 0.45s ease;
-                  "
-                  class="group-hover:scale-[1.03]"
+                  class="w-full h-full object-cover transition-transform duration-450 ease-in-out group-hover:scale-[1.03]"
                 />
                 <!-- Wishlist -->
                 <button
                   (click)="toggleWishlist($event, product.id)"
                   [style.color]="isWishlisted(product.id) ? '#dc2626' : '#1a1a1a'"
-                  style="
-                    position: absolute;
-                    top: 8px;
-                    right: 8px;
-                    width: 32px;
-                    height: 32px;
-                    border-radius: 50%;
-                    background: #fff;
-                    border: none;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    cursor: pointer;
-                    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
-                  "
+                  class="absolute top-2 right-2 w-8 h-8 rounded-full bg-white border-0 flex items-center justify-center cursor-pointer shadow-sm"
                   aria-label="Toggle wishlist"
                 >
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    [attr.fill]="isWishlisted(product.id) ? 'currentColor' : 'none'"
-                  >
-                    <path
-                      d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-                    />
-                  </svg>
+                  <i
+                    [class]="
+                      isWishlisted(product.id) ? 'pi pi-heart-fill text-gray-900' : 'pi pi-heart'
+                    "
+                    style="font-size: 14px"
+                  ></i>
                 </button>
 
                 @if (product.stock_count === 0) {
                   <span
-                    style="
-                      position: absolute;
-                      bottom: 8px;
-                      left: 8px;
-                      padding: 3px 8px;
-                      background: rgba(0, 0, 0, 0.7);
-                      color: #fff;
-                      font-size: 0.65rem;
-                      border-radius: 2px;
-                      letter-spacing: 0.05em;
-                    "
+                    class="absolute bottom-2 left-2 px-2 py-0.5 bg-black/70 text-white text-[0.65rem] rounded-sm tracking-[0.05em]"
                   >
                     OUT OF STOCK
                   </span>
@@ -245,30 +146,13 @@
               </div>
 
               <!-- Info -->
-              <p
-                style="
-                  font-size: 0.875rem;
-                  color: #1a1a1a;
-                  margin-bottom: 3px;
-                  white-space: nowrap;
-                  overflow: hidden;
-                  text-overflow: ellipsis;
-                "
-              >
+              <p class="text-sm text-[#1a1a1a] mb-0.5 truncate">
                 {{ product.name }}
               </p>
-              <p
-                style="
-                  font-size: 0.7rem;
-                  color: #9ca3af;
-                  text-transform: uppercase;
-                  letter-spacing: 0.06em;
-                  margin-bottom: 3px;
-                "
-              >
+              <p class="text-[0.7rem] text-gray-400 uppercase tracking-[0.06em] mb-0.5">
                 {{ product.category }}
               </p>
-              <p style="font-size: 0.875rem; font-weight: 500; color: #374151">
+              <p class="text-sm font-medium text-gray-700">
                 GHS {{ product.price | number: '1.2-2' }}
               </p>
             </a>
@@ -285,27 +169,16 @@
 ══════════════════════════════════════════ -->
 <ng-template #filterContent>
   <!-- Category -->
-  <div style="margin-bottom: 28px">
-    <h3 style="font-size: 0.9rem; font-weight: 600; color: #1a1a1a; margin-bottom: 14px">
-      Category
-    </h3>
-    <div style="display: flex; flex-direction: column; gap: 10px">
+  <div class="mb-7">
+    <h3 class="text-[0.9rem] font-semibold text-[#1a1a1a] mb-3.5">Category</h3>
+    <div class="flex flex-col gap-2.5">
       @for (cat of categories; track cat) {
-        <label
-          style="
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-            font-size: 0.875rem;
-            color: #374151;
-          "
-        >
+        <label class="flex items-center gap-2.5 cursor-pointer text-sm text-gray-700">
           <input
             type="checkbox"
             [checked]="selectedCategories().includes(cat)"
             (change)="toggleCategory(cat)"
-            style="width: 16px; height: 16px; accent-color: #1a1a1a; cursor: pointer"
+            class="w-4 h-4 accent-black cursor-pointer"
           />
           {{ cat }}
         </label>
@@ -314,23 +187,16 @@
   </div>
 
   <!-- Size -->
-  <div style="margin-bottom: 28px">
-    <h3 style="font-size: 0.9rem; font-weight: 600; color: #1a1a1a; margin-bottom: 14px">Size</h3>
-    <div style="display: flex; flex-wrap: wrap; gap: 8px">
+  <div class="mb-7">
+    <h3 class="text-[0.9rem] font-semibold text-[#1a1a1a] mb-3.5">Size</h3>
+    <div class="flex flex-wrap gap-2">
       @for (size of sizes; track size) {
         <button
           (click)="toggleSize(size)"
           [style.background]="selectedSizes().includes(size) ? '#1a1a1a' : '#fff'"
           [style.color]="selectedSizes().includes(size) ? '#fff' : '#374151'"
           [style.border-color]="selectedSizes().includes(size) ? '#1a1a1a' : '#d1d5db'"
-          style="
-            padding: 5px 10px;
-            border: 1px solid;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: all 0.15s;
-          "
+          class="px-2.5 py-1 border rounded text-[0.8rem] cursor-pointer transition-all duration-150"
         >
           {{ size }}
         </button>
@@ -339,25 +205,16 @@
   </div>
 
   <!-- Color -->
-  <div style="margin-bottom: 28px">
-    <h3 style="font-size: 0.9rem; font-weight: 600; color: #1a1a1a; margin-bottom: 14px">Color</h3>
-    <div style="display: flex; flex-direction: column; gap: 10px">
+  <div class="mb-7">
+    <h3 class="text-[0.9rem] font-semibold text-[#1a1a1a] mb-3.5">Color</h3>
+    <div class="flex flex-col gap-2.5">
       @for (color of colors; track color) {
-        <label
-          style="
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-            font-size: 0.875rem;
-            color: #374151;
-          "
-        >
+        <label class="flex items-center gap-2.5 cursor-pointer text-sm text-gray-700">
           <input
             type="checkbox"
             [checked]="selectedColors().includes(color)"
             (change)="toggleColor(color)"
-            style="width: 16px; height: 16px; accent-color: #1a1a1a; cursor: pointer"
+            class="w-4 h-4 accent-black cursor-pointer"
           />
           {{ color }}
         </label>
@@ -366,60 +223,46 @@
   </div>
 
   <!-- Price Range -->
-  <div style="margin-bottom: 28px">
-    <h3 style="font-size: 0.9rem; font-weight: 600; color: #1a1a1a; margin-bottom: 14px">
-      Price Range
-    </h3>
-    <div style="display: flex; align-items: center; gap: 8px">
+  <div class="mb-7">
+    <h3 class="text-[0.9rem] font-semibold text-[#1a1a1a] mb-3.5">Price Range</h3>
+    <div class="flex justify-between text-sm text-gray-500 mb-3">
+      <span>GHS {{ minPrice() }}</span>
+      <span>GHS {{ maxPrice() }}</span>
+    </div>
+    <p-slider
+      [ngModel]="[minPrice(), maxPrice()]"
+      (ngModelChange)="minPrice.set($event[0]); maxPrice.set($event[1])"
+      [range]="true"
+      [min]="0"
+      [max]="500"
+      class="w-full mb-4"
+    ></p-slider>
+    <div class="flex items-center gap-2 mt-4">
       <input
         type="number"
         [ngModel]="minPrice()"
         (ngModelChange)="minPrice.set($event)"
         min="0"
         [max]="maxPrice()"
-        style="
-          width: 70px;
-          padding: 6px 8px;
-          border: 1px solid #d1d5db;
-          border-radius: 4px;
-          font-size: 0.8rem;
-          color: #1a1a1a;
-          outline: none;
-        "
+        class="w-25 px-2 py-1.5 border border-gray-300 rounded text-[0.8rem] text-[#1a1a1a] outline-none"
       />
-      <span style="color: #9ca3af; font-size: 0.875rem">-</span>
+      <span class="text-gray-400 text-sm">-</span>
       <input
         type="number"
         [ngModel]="maxPrice()"
         (ngModelChange)="maxPrice.set($event)"
         [min]="minPrice()"
-        style="
-          width: 70px;
-          padding: 6px 8px;
-          border: 1px solid #d1d5db;
-          border-radius: 4px;
-          font-size: 0.8rem;
-          color: #1a1a1a;
-          outline: none;
-        "
+        class="w-25 px-2 py-1.5 border border-gray-300 rounded text-[0.8rem] text-[#1a1a1a] outline-none"
       />
     </div>
   </div>
 
   <!-- Clear filters -->
-  <button
-    (click)="clearFilters(); closeFilters()"
-    style="
-      width: 100%;
-      padding: 9px;
-      border: 1px solid #d1d5db;
-      border-radius: 6px;
-      background: #fff;
-      font-size: 0.8rem;
-      color: #374151;
-      cursor: pointer;
-    "
-  >
-    Clear All Filters
-  </button>
+  <p-button
+    label="Clear All Filters"
+    severity="secondary"
+    [outlined]="true"
+    class="w-full"
+    (onClick)="closeFilters()"
+  ></p-button>
 </ng-template>
