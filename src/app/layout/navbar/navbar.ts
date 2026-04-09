@@ -3,10 +3,11 @@ import { Auth } from '../../core/services/auth';
 import { Cart } from '../../core/services/cart';
 import { Wishlist } from '../../core/services/wishlist';
 import { RouterLink } from '@angular/router';
+import { DividerModule } from 'primeng/divider';
 
 @Component({
   selector: 'app-navbar',
-  imports: [RouterLink],
+  imports: [RouterLink, DividerModule],
   templateUrl: './navbar.html',
 })
 export class Navbar implements OnInit {
