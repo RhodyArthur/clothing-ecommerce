@@ -2,6 +2,7 @@ import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule, NgTemplateOutlet } from '@angular/common';
 import { SelectModule } from 'primeng/select';
+import { DrawerModule } from 'primeng/drawer';
 import { Product } from '../../../core/services/product';
 import { Wishlist } from '../../../core/services/wishlist';
 import { FormsModule } from '@angular/forms';
@@ -10,7 +11,7 @@ type SortOption = 'featured' | 'price-asc' | 'price-desc' | 'newest' | 'highest-
 
 @Component({
   selector: 'app-product-list',
-  imports: [RouterLink, CommonModule, FormsModule, NgTemplateOutlet, SelectModule],
+  imports: [RouterLink, CommonModule, FormsModule, NgTemplateOutlet, SelectModule, DrawerModule],
   templateUrl: './product-list.html',
   styleUrls: ['./product-list.css'],
 })

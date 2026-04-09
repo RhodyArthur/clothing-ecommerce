@@ -1,5 +1,4 @@
 <div class="max-w-screen-2xl mx-auto px-4 md:px-8 py-8 md:py-10">
-
   <!-- Page header -->
   <div class="mb-6">
     <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-1">
@@ -20,14 +19,31 @@
   <div class="flex items-center gap-3 mb-6 md:hidden">
     <button
       (click)="openFilters()"
-      style="display:flex; align-items:center; gap:6px; padding: 7px 14px;
-             border: 1px solid #d1d5db; border-radius: 6px; background:#fff;
-             font-size: 0.875rem; color:#374151; cursor:pointer;"
+      style="
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 14px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        background: #fff;
+        font-size: 0.875rem;
+        color: #374151;
+        cursor: pointer;
+      "
     >
-      <i class="pi pi-sliders-h" ></i>
+      <i class="pi pi-sliders-h"></i>
       Filters
       @if (hasActiveFilters()) {
-        <span style="width:7px;height:7px;background:#1a1a1a;border-radius:50%;display:inline-block;"></span>
+        <span
+          style="
+            width: 7px;
+            height: 7px;
+            background: #1a1a1a;
+            border-radius: 50%;
+            display: inline-block;
+          "
+        ></span>
       }
     </button>
 
@@ -37,60 +53,41 @@
       optionValue="value"
       [ngModel]="sortBy()"
       (ngModelChange)="sortBy.set($event)"
-      style="flex:1;"
+      style="flex: 1"
     ></p-select>
   </div>
 
   <!-- ══════════════════════════════════════════
        MOBILE: Filter drawer overlay
   ══════════════════════════════════════════ -->
-  @if (filterDrawerOpen()) {
-    <!-- Backdrop -->
-    <div
-      class="fixed inset-0 bg-black/40 z-40 md:hidden"
-    ></div>
+  <p-drawer
+    header="Filters"
+    [visible]="filterDrawerOpen()"
+    position="left"
+    [modal]="true"
+    [closable]="true"
+    class="md:hidden"
+    (onHide)="closeFilters()"
+  >
 
-    <!-- Drawer -->
-    <div
-      class="fixed top-0 left-0 h-full z-50 bg-white overflow-y-auto md:hidden"
-      style="width: 300px; padding: 24px 20px; box-shadow: 4px 0 20px rgba(0,0,0,0.1);"
-    >
-      <!-- Drawer header -->
-      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:28px;">
-        <h2 style="font-size:1.1rem; font-weight:600; color:#1a1a1a;">Filters</h2>
-        <button
-          (click)="closeFilters()"
-          style="background:none; border:none; cursor:pointer; color:#6b7280; padding:4px;"
-          aria-label="Close filters"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <line x1="18" y1="6" x2="6" y2="18"/>
-            <line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>
-        </button>
-      </div>
-
-      <!-- Reuse filter content -->
-      <ng-container *ngTemplateOutlet="filterContent"></ng-container>
-    </div>
-  }
+    <ng-container *ngTemplateOutlet="filterContent"></ng-container>
+  </p-drawer>
 
   <!-- ══════════════════════════════════════════
        DESKTOP: Sidebar + Grid layout
   ══════════════════════════════════════════ -->
   <div class="flex gap-10">
-
     <!-- Desktop sidebar (hidden on mobile) -->
-    <aside class="hidden md:block" style="width:200px; flex-shrink:0;">
+    <aside class="hidden md:block" style="width: 200px; flex-shrink: 0">
       <!-- Sort -->
-      <div style="margin-bottom:28px;">
+      <div style="margin-bottom: 28px">
         <p-select
           [options]="sortOptions"
           optionLabel="label"
           optionValue="value"
           [ngModel]="sortBy()"
           (ngModelChange)="sortBy.set($event)"
-          style="width:100%"
+          style="width: 100%"
         ></p-select>
       </div>
 
@@ -100,100 +97,184 @@
     <!-- ══════════════════════════════════════════
          PRODUCT GRID
     ══════════════════════════════════════════ -->
-    <div style="flex:1; min-width:0;">
-
+    <div style="flex: 1; min-width: 0">
       <!-- Loading skeletons -->
       @if (productService.loading()) {
         <div class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
-          @for (n of [1,2,3,4,5,6]; track n) {
+          @for (n of [1, 2, 3, 4, 5, 6]; track n) {
             <div>
-              <div class="animate-pulse bg-gray-200 rounded-sm w-full mb-3" style="aspect-ratio:3/4;"></div>
-              <div class="animate-pulse bg-gray-200 h-3 rounded mb-2" style="width:70%;"></div>
-              <div class="animate-pulse bg-gray-200 h-3 rounded" style="width:35%;"></div>
+              <div
+                class="animate-pulse bg-gray-200 rounded-sm w-full mb-3"
+                style="aspect-ratio: 3/4"
+              ></div>
+              <div class="animate-pulse bg-gray-200 h-3 rounded mb-2" style="width: 70%"></div>
+              <div class="animate-pulse bg-gray-200 h-3 rounded" style="width: 35%"></div>
             </div>
           }
         </div>
 
-      <!-- Empty state -->
+        <!-- Empty state -->
       } @else if (filteredProducts().length === 0) {
-        <div style="display:flex; flex-direction:column; align-items:center;
-                    justify-content:center; padding:80px 0; text-align:center;">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d1d5db"
-               stroke-width="1.5" style="margin-bottom:16px;">
-            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        <div
+          style="
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 0;
+            text-align: center;
+          "
+        >
+          <svg
+            width="48"
+            height="48"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#d1d5db"
+            stroke-width="1.5"
+            style="margin-bottom: 16px"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.35-4.35" />
           </svg>
-          <p style="font-size:1rem; font-weight:500; color:#374151; margin-bottom:6px;">No products found</p>
-          <p style="font-size:0.875rem; color:#9ca3af; margin-bottom:20px;">Try adjusting your filters</p>
+          <p style="font-size: 1rem; font-weight: 500; color: #374151; margin-bottom: 6px">
+            No products found
+          </p>
+          <p style="font-size: 0.875rem; color: #9ca3af; margin-bottom: 20px">
+            Try adjusting your filters
+          </p>
           <button
             (click)="clearFilters()"
-            style="padding:8px 20px; border:1px solid #1a1a1a; border-radius:4px;
-                   background:#fff; font-size:0.875rem; color:#1a1a1a; cursor:pointer;"
+            style="
+              padding: 8px 20px;
+              border: 1px solid #1a1a1a;
+              border-radius: 4px;
+              background: #fff;
+              font-size: 0.875rem;
+              color: #1a1a1a;
+              cursor: pointer;
+            "
           >
             Clear Filters
           </button>
         </div>
 
-      <!-- Products -->
+        <!-- Products -->
       } @else {
         <div class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
           @for (product of filteredProducts(); track product.id) {
             <a
               [routerLink]="['/products', product.id]"
-              style="display:block; text-decoration:none; color:inherit;"
+              style="display: block; text-decoration: none; color: inherit"
               class="group"
             >
               <!-- Image -->
-              <div style="position:relative; overflow:hidden; border-radius:2px;
-                          background:#f3f4f6; margin-bottom:10px;"
-                   [style.aspect-ratio]="'3/4'">
+              <div
+                style="
+                  position: relative;
+                  overflow: hidden;
+                  border-radius: 2px;
+                  background: #f3f4f6;
+                  margin-bottom: 10px;
+                "
+                [style.aspect-ratio]="'3/4'"
+              >
                 <img
                   [src]="product.image_urls[0] || 'assets/images/placeholder.jpg'"
                   [alt]="product.name"
-                  style="width:100%; height:100%; object-fit:cover; transition:transform 0.45s ease;"
+                  style="
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    transition: transform 0.45s ease;
+                  "
                   class="group-hover:scale-[1.03]"
                 />
                 <!-- Wishlist -->
                 <button
                   (click)="toggleWishlist($event, product.id)"
                   [style.color]="isWishlisted(product.id) ? '#dc2626' : '#1a1a1a'"
-                  style="position:absolute; top:8px; right:8px; width:32px; height:32px;
-                         border-radius:50%; background:#fff; border:none; display:flex;
-                         align-items:center; justify-content:center; cursor:pointer;
-                         box-shadow:0 1px 4px rgba(0,0,0,0.12);"
+                  style="
+                    position: absolute;
+                    top: 8px;
+                    right: 8px;
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 50%;
+                    background: #fff;
+                    border: none;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+                  "
                   aria-label="Toggle wishlist"
                 >
-                  <svg width="14" height="14" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"
-                    [attr.fill]="isWishlisted(product.id) ? 'currentColor' : 'none'">
-                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    [attr.fill]="isWishlisted(product.id) ? 'currentColor' : 'none'"
+                  >
+                    <path
+                      d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                    />
                   </svg>
                 </button>
 
                 @if (product.stock_count === 0) {
-                  <span style="position:absolute; bottom:8px; left:8px; padding:3px 8px;
-                               background:rgba(0,0,0,0.7); color:#fff; font-size:0.65rem;
-                               border-radius:2px; letter-spacing:0.05em;">
+                  <span
+                    style="
+                      position: absolute;
+                      bottom: 8px;
+                      left: 8px;
+                      padding: 3px 8px;
+                      background: rgba(0, 0, 0, 0.7);
+                      color: #fff;
+                      font-size: 0.65rem;
+                      border-radius: 2px;
+                      letter-spacing: 0.05em;
+                    "
+                  >
                     OUT OF STOCK
                   </span>
                 }
               </div>
 
               <!-- Info -->
-              <p style="font-size:0.875rem; color:#1a1a1a; margin-bottom:3px;
-                        white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+              <p
+                style="
+                  font-size: 0.875rem;
+                  color: #1a1a1a;
+                  margin-bottom: 3px;
+                  white-space: nowrap;
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                "
+              >
                 {{ product.name }}
               </p>
-              <p style="font-size:0.7rem; color:#9ca3af; text-transform:uppercase;
-                        letter-spacing:0.06em; margin-bottom:3px;">
+              <p
+                style="
+                  font-size: 0.7rem;
+                  color: #9ca3af;
+                  text-transform: uppercase;
+                  letter-spacing: 0.06em;
+                  margin-bottom: 3px;
+                "
+              >
                 {{ product.category }}
               </p>
-              <p style="font-size:0.875rem; font-weight:500; color:#374151;">
-                GHS {{ product.price | number:'1.2-2' }}
+              <p style="font-size: 0.875rem; font-weight: 500; color: #374151">
+                GHS {{ product.price | number: '1.2-2' }}
               </p>
             </a>
           }
         </div>
       }
-
     </div>
   </div>
 </div>
@@ -203,19 +284,28 @@
      (used in both drawer and desktop sidebar)
 ══════════════════════════════════════════ -->
 <ng-template #filterContent>
-
   <!-- Category -->
-  <div style="margin-bottom:28px;">
-    <h3 style="font-size:0.9rem; font-weight:600; color:#1a1a1a; margin-bottom:14px;">Category</h3>
-    <div style="display:flex; flex-direction:column; gap:10px;">
+  <div style="margin-bottom: 28px">
+    <h3 style="font-size: 0.9rem; font-weight: 600; color: #1a1a1a; margin-bottom: 14px">
+      Category
+    </h3>
+    <div style="display: flex; flex-direction: column; gap: 10px">
       @for (cat of categories; track cat) {
-        <label style="display:flex; align-items:center; gap:10px; cursor:pointer;
-                      font-size:0.875rem; color:#374151;">
+        <label
+          style="
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            color: #374151;
+          "
+        >
           <input
             type="checkbox"
             [checked]="selectedCategories().includes(cat)"
             (change)="toggleCategory(cat)"
-            style="width:16px; height:16px; accent-color:#1a1a1a; cursor:pointer;"
+            style="width: 16px; height: 16px; accent-color: #1a1a1a; cursor: pointer"
           />
           {{ cat }}
         </label>
@@ -224,17 +314,23 @@
   </div>
 
   <!-- Size -->
-  <div style="margin-bottom:28px;">
-    <h3 style="font-size:0.9rem; font-weight:600; color:#1a1a1a; margin-bottom:14px;">Size</h3>
-    <div style="display:flex; flex-wrap:wrap; gap:8px;">
+  <div style="margin-bottom: 28px">
+    <h3 style="font-size: 0.9rem; font-weight: 600; color: #1a1a1a; margin-bottom: 14px">Size</h3>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px">
       @for (size of sizes; track size) {
         <button
           (click)="toggleSize(size)"
           [style.background]="selectedSizes().includes(size) ? '#1a1a1a' : '#fff'"
           [style.color]="selectedSizes().includes(size) ? '#fff' : '#374151'"
           [style.border-color]="selectedSizes().includes(size) ? '#1a1a1a' : '#d1d5db'"
-          style="padding:5px 10px; border:1px solid; border-radius:4px;
-                 font-size:0.8rem; cursor:pointer; transition:all 0.15s;"
+          style="
+            padding: 5px 10px;
+            border: 1px solid;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.15s;
+          "
         >
           {{ size }}
         </button>
@@ -243,17 +339,25 @@
   </div>
 
   <!-- Color -->
-  <div style="margin-bottom:28px;">
-    <h3 style="font-size:0.9rem; font-weight:600; color:#1a1a1a; margin-bottom:14px;">Color</h3>
-    <div style="display:flex; flex-direction:column; gap:10px;">
+  <div style="margin-bottom: 28px">
+    <h3 style="font-size: 0.9rem; font-weight: 600; color: #1a1a1a; margin-bottom: 14px">Color</h3>
+    <div style="display: flex; flex-direction: column; gap: 10px">
       @for (color of colors; track color) {
-        <label style="display:flex; align-items:center; gap:10px; cursor:pointer;
-                      font-size:0.875rem; color:#374151;">
+        <label
+          style="
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            color: #374151;
+          "
+        >
           <input
             type="checkbox"
             [checked]="selectedColors().includes(color)"
             (change)="toggleColor(color)"
-            style="width:16px; height:16px; accent-color:#1a1a1a; cursor:pointer;"
+            style="width: 16px; height: 16px; accent-color: #1a1a1a; cursor: pointer"
           />
           {{ color }}
         </label>
@@ -262,21 +366,42 @@
   </div>
 
   <!-- Price Range -->
-  <div style="margin-bottom:28px;">
-    <h3 style="font-size:0.9rem; font-weight:600; color:#1a1a1a; margin-bottom:14px;">Price Range</h3>
-    <div style="display:flex; align-items:center; gap:8px;">
+  <div style="margin-bottom: 28px">
+    <h3 style="font-size: 0.9rem; font-weight: 600; color: #1a1a1a; margin-bottom: 14px">
+      Price Range
+    </h3>
+    <div style="display: flex; align-items: center; gap: 8px">
       <input
-        type="number" [ngModel]="minPrice()" (ngModelChange)="minPrice.set($event)"
-        min="0" [max]="maxPrice()"
-        style="width:70px; padding:6px 8px; border:1px solid #d1d5db; border-radius:4px;
-               font-size:0.8rem; color:#1a1a1a; outline:none;"
+        type="number"
+        [ngModel]="minPrice()"
+        (ngModelChange)="minPrice.set($event)"
+        min="0"
+        [max]="maxPrice()"
+        style="
+          width: 70px;
+          padding: 6px 8px;
+          border: 1px solid #d1d5db;
+          border-radius: 4px;
+          font-size: 0.8rem;
+          color: #1a1a1a;
+          outline: none;
+        "
       />
-      <span style="color:#9ca3af; font-size:0.875rem;">-</span>
+      <span style="color: #9ca3af; font-size: 0.875rem">-</span>
       <input
-        type="number" [ngModel]="maxPrice()" (ngModelChange)="maxPrice.set($event)"
+        type="number"
+        [ngModel]="maxPrice()"
+        (ngModelChange)="maxPrice.set($event)"
         [min]="minPrice()"
-        style="width:70px; padding:6px 8px; border:1px solid #d1d5db; border-radius:4px;
-               font-size:0.8rem; color:#1a1a1a; outline:none;"
+        style="
+          width: 70px;
+          padding: 6px 8px;
+          border: 1px solid #d1d5db;
+          border-radius: 4px;
+          font-size: 0.8rem;
+          color: #1a1a1a;
+          outline: none;
+        "
       />
     </div>
   </div>
@@ -284,10 +409,17 @@
   <!-- Clear filters -->
   <button
     (click)="clearFilters(); closeFilters()"
-    style="width:100%; padding:9px; border:1px solid #d1d5db; border-radius:6px;
-           background:#fff; font-size:0.8rem; color:#374151; cursor:pointer;"
+    style="
+      width: 100%;
+      padding: 9px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      background: #fff;
+      font-size: 0.8rem;
+      color: #374151;
+      cursor: pointer;
+    "
   >
     Clear All Filters
   </button>
-
 </ng-template>
