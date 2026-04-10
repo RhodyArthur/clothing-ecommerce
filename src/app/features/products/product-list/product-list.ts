@@ -136,14 +136,11 @@ export class ProductList implements OnInit, OnDestroy {
   toggleWishlist(event: Event, productId: string): void {
     event.preventDefault();
     event.stopPropagation();
-    console.log(productId);
-    // this.wishlistService.toggle(productId);
+    this.wishlistService.toggle(productId);
   }
 
   isWishlisted(productId: string): boolean {
-    console.log(productId);
-    return false;
-    // return this.wishlistService.has(productId);
+    return this.wishlistService.has(productId);
   }
 
   clearFilters(): void {
