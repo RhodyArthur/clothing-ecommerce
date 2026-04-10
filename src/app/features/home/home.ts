@@ -41,13 +41,13 @@ export class Home implements OnInit{
     this.productService.fetchProducts();
   }
 
-  // toggleWishlist(event: Event, productId: string): void {
-  //   event.preventDefault();
-  //   event.stopPropagation();
-  //   this.wishlistService.toggle(productId);
-  // }
+  toggleWishlist(event: Event, productId: string): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.wishlistService.toggle(productId);
+  }
 
-  // isWishlisted(productId: string): boolean {
-  //   return this.wishlistService.has(productId);
-  // }
+  isWishlisted(productId: string): boolean {
+    return this.wishlistService.has(productId);
+  }
 }
