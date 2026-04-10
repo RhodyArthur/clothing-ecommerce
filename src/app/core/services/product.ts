@@ -12,7 +12,8 @@ export class Product {
   private readonly _loading = signal<boolean>(false);
   private readonly _error = signal<string | null>(null);
   private readonly supabaseService = inject(Supabase);
-
+  
+  products = this._products.asReadonly();
   loading = this._loading.asReadonly();
 
   // --- Derived signals ---
