@@ -23,6 +23,24 @@ export const routes: Routes = [
           import('./features/products/product-detail/product-detail')
             .then(m => m.ProductDetail)
       },
+      {
+        path: 'cart',
+        loadComponent: () =>
+          import('./features/cart/cart')
+            .then(m => m.Cart)
+      },
+      {
+        path: 'wishlist',
+        loadComponent: () =>
+          import('./features/wishlist/wishlist')
+            .then(m => m.Wishlist)
+      },
+      {
+        path: 'checkout',
+        loadComponent: () =>
+          import('./features/checkout/checkout')
+            .then(m => m.Checkout)
+      },
     ]
 }
 ];
