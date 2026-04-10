@@ -1,4 +1,4 @@
-import { Component, HostListener, inject, signal, OnInit } from '@angular/core';
+import { Component, HostListener, inject, signal, OnInit, computed } from '@angular/core';
 import { Auth } from '../../core/services/auth';
 import { Cart } from '../../core/services/cart';
 import { Wishlist } from '../../core/services/wishlist';
@@ -14,6 +14,9 @@ export class Navbar implements OnInit {
   private readonly cart = inject(Cart);
   private readonly wishlist = inject(Wishlist);
   auth = inject(Auth);
+
+  cartCount = computed(() => this.cart.itemCount());
+  wishlistCount = computed(() => this.wishlist.count());
 
   mobileMenuOpen = signal(false);
   scrolled = signal(false);
