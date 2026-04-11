@@ -3,9 +3,14 @@ import { inject } from '@angular/core';
 import { Auth } from '../services/auth';
 
 
-export const authGuard: CanActivateFn = () => {
+export const authGuard: CanActivateFn = (route) => {
   const auth = inject(Auth);
   const router = inject(Router);
-  if (auth.currentUser()) return true;
-  return router.createUrlTree(['/auth/login']);
+  if (auth.isLoggedIn()) return true;
+
+  // Preserve the intended URL so we can redirect after login
+  const intended = route.url.map(s => s.path).join('/');
+  return router.createUrlTree(['/auth/login'], {
+    queryParams: intended ? { returnUrl: intended } : {}
+  });
 };
