@@ -15,7 +15,6 @@ import { MessageModule } from 'primeng/message';
     InputTextModule, PasswordModule, ButtonModule,
     DividerModule, MessageModule],
   templateUrl: './login.html',
-  styleUrl: './login.css',
 })
 export class Login {
   private fb = inject(FormBuilder);
