@@ -4,87 +4,147 @@
   [class.border-b]="scrolled()"
   [class.border-gray-200]="scrolled()"
 >
-  <div class="flex items-center justify-between w-full max-w-screen-2xl mx-auto px-8 h-17">
-    <!-- Logo -->
-    <a routerLink="/" class="text-[1.1rem] font-bold tracking-widest text-gray-900 no-underline">
-      TheFooseGuy
-    </a>
-
-    <!-- Desktop nav links -->
-    <nav class="hidden md:flex items-center gap-10">
-      @for (link of navLinks; track link.label) {
-        <a
-          class="text-sm text-gray-900 no-underline relative pb-0.5 after:absolute after:bottom-0 after:left-0 after:h-px after:w-0 after:bg-gray-900 after:transition-all after:duration-200 hover:after:w-full"
-          [routerLink]="link.path"
-          [queryParams]="link.query"
-          routerLinkActive="after:w-full"
-        >
-          {{ link.label }}
-        </a>
-      }
-    </nav>
-
-    <!-- Desktop icons -->
-    <div class="hidden md:flex items-center gap-2">
-      <!-- Search -->
-      <a
-        routerLink="/products"
-        class="flex items-center justify-center w-10 h-10 rounded-xl text-gray-900 hover:bg-gray-100 transition-colors"
-        aria-label="Search"
+  <div class="flex items-center w-full max-w-screen-2xl mx-auto px-8 h-17">
+    <!-- LEFT: hamburger (mobile) + desktop logo -->
+    <div class="flex items-center gap-3">
+      <button
+        class="md:hidden flex items-center justify-center p-1 text-gray-900 bg-transparent border-none cursor-pointer"
+        (click)="toggleMobileMenu()"
+        aria-label="Menu"
       >
-        <i class="pi pi-search text-[20px]"></i>
-      </a>
-
-      <!-- Account -->
-      <a
-        [routerLink]="auth.currentUser() ? '/orders' : '/auth/login'"
-        class="flex items-center justify-center w-10 h-10 rounded-xl text-gray-900 hover:bg-gray-100 transition-colors"
-        aria-label="Account"
-      >
-        <i class="pi pi-user text-[20px]"></i>
-      </a>
-
-      <!-- Wishlist -->
-      <a
-        routerLink="/wishlist"
-        class="relative flex items-center justify-center w-10 h-10 rounded-xl text-gray-900 hover:bg-gray-100 transition-colors"
-        aria-label="Wishlist"
-      >
-        <i class="pi pi-heart text-[20px]"></i>
-        @if (wishlistCount() > 0) {
-          <span class="absolute top-1 right-1 min-w-4 h-4 px-1 bg-gray-900 text-white text-[10px] font-semibold rounded-full flex items-center justify-center">
-            {{ wishlistCount() }}
-          </span>
+        @if (mobileMenuOpen()) {
+          <i class="pi pi-times text-[22px]"></i>
+        } @else {
+          <i class="pi pi-bars text-[22px]"></i>
         }
-      </a>
+      </button>
 
-      <!-- Cart -->
+      <!-- Desktop logo (left) -->
       <a
-        routerLink="/cart"
-        class="relative flex items-center justify-center w-10 h-10 rounded-xl text-gray-900 hover:bg-gray-100 transition-colors"
-        aria-label="Cart"
+        routerLink="/"
+        class="hidden md:inline-block text-[1rem] font-bold tracking-widest text-gray-900 no-underline"
       >
-        <i class="pi pi-shopping-cart text-[20px]"></i>
-        <!-- @if (cartCount() > 0) {
-          <span class="absolute top-1 right-1 min-w-[16px] h-4 px-1 bg-gray-900 text-white text-[10px] font-semibold rounded-full flex items-center justify-center">
-            {{ cartCount() }}
-          </span>
-        } -->
+        TheFooseGuy
       </a>
     </div>
 
-    <!-- Mobile hamburger -->
-    <button
-      class="flex md:hidden items-center justify-center p-1 text-gray-900 bg-transparent border-none cursor-pointer"
-      (click)="toggleMobileMenu()"
-      aria-label="Menu"
-    >
-      @if (mobileMenuOpen()) {
-        <i class="pi pi-times text-[22px]"></i>
-      } @else {
-        <i class="pi pi-bars text-[22px]"></i>
-      }
-    </button>
+    <!-- CENTER: mobile logo + centered desktop nav links -->
+    <div class="flex-1 flex justify-center items-center">
+      <!-- Mobile logo (center) -->
+      <a
+        routerLink="/"
+        class="md:hidden text-[1.05rem] font-bold tracking-widest text-gray-900 no-underline"
+      >
+        TheFooseGuy
+      </a>
+
+      <!-- Desktop categories (centered) -->
+      <nav class="hidden md:flex items-center gap-10 justify-center">
+        @for (link of navLinks; track link.label) {
+          <a
+            class="text-sm text-gray-900 no-underline relative pb-0.5 after:absolute after:bottom-0 after:left-0 after:h-px after:w-0 after:bg-gray-900 after:transition-all after:duration-200 hover:after:w-full"
+            [routerLink]="link.path"
+            [queryParams]="link.query"
+            routerLinkActive="after:w-full"
+          >
+            {{ link.label }}
+          </a>
+        }
+      </nav>
+    </div>
+
+    <!-- RIGHT: icons (mobile + desktop handling) -->
+    <div class="flex items-center gap-2">
+      <!-- Mobile icons: visible on small screens -->
+      <div class="flex items-center gap-2 md:hidden">
+        <a
+          routerLink="/products"
+          class="flex items-center justify-center w-9 h-9 rounded-md text-gray-900 hover:bg-gray-100 transition-colors"
+          aria-label="Search"
+        >
+          <i class="pi pi-search text-[18px]"></i>
+        </a>
+
+        <a
+          [routerLink]="auth.currentUser() ? '/orders' : '/auth/login'"
+          class="flex items-center justify-center w-9 h-9 rounded-md text-gray-900 hover:bg-gray-100 transition-colors"
+          aria-label="Account"
+        >
+          <i class="pi pi-user text-[18px]"></i>
+        </a>
+
+        <a
+          routerLink="/wishlist"
+          class="relative flex items-center justify-center w-9 h-9 rounded-md text-gray-900 hover:bg-gray-100 transition-colors"
+          aria-label="Wishlist"
+        >
+          <i class="pi pi-heart text-[18px]"></i>
+          @if (wishlistCount() > 0) {
+            <span
+              class="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 bg-gray-900 text-white text-[10px] font-semibold rounded-full flex items-center justify-center"
+            >
+              {{ wishlistCount() }}
+            </span>
+          }
+        </a>
+
+        <a
+          routerLink="/cart"
+          class="flex items-center justify-center w-9 h-9 rounded-md text-gray-900 hover:bg-gray-100 transition-colors"
+          aria-label="Cart"
+        >
+          <i class="pi pi-shopping-cart text-[18px]"></i>
+        </a>
+      </div>
+
+      <!-- (nav links moved next to logo for desktop) -->
+
+      <!-- Desktop icons -->
+      <div class="hidden md:flex items-center gap-2">
+        <!-- Search -->
+        <a
+          routerLink="/products"
+          class="flex items-center justify-center w-10 h-10 rounded-xl text-gray-900 hover:bg-gray-100 transition-colors"
+          aria-label="Search"
+        >
+          <i class="pi pi-search text-[20px]"></i>
+        </a>
+
+        <!-- Account -->
+        <a
+          [routerLink]="auth.currentUser() ? '/orders' : '/auth/login'"
+          class="flex items-center justify-center w-10 h-10 rounded-xl text-gray-900 hover:bg-gray-100 transition-colors"
+          aria-label="Account"
+        >
+          <i class="pi pi-user text-[20px]"></i>
+        </a>
+
+        <!-- Wishlist -->
+        <a
+          routerLink="/wishlist"
+          class="relative flex items-center justify-center w-10 h-10 rounded-xl text-gray-900 hover:bg-gray-100 transition-colors"
+          aria-label="Wishlist"
+        >
+          <i class="pi pi-heart text-[20px]"></i>
+          @if (wishlistCount() > 0) {
+            <span
+              class="absolute top-1 right-1 min-w-4 h-4 px-1 bg-gray-900 text-white text-[10px] font-semibold rounded-full flex items-center justify-center"
+            >
+              {{ wishlistCount() }}
+            </span>
+          }
+        </a>
+
+        <!-- Cart -->
+        <a
+          routerLink="/cart"
+          class="relative flex items-center justify-center w-10 h-10 rounded-xl text-gray-900 hover:bg-gray-100 transition-colors"
+          aria-label="Cart"
+        >
+          <i class="pi pi-shopping-cart text-[20px]"></i>
+        </a>
+      </div>
+    </div>
   </div>
 
   <!-- Mobile menu -->
@@ -103,18 +163,6 @@
         </a>
       }
       <p-divider />
-      <a
-        routerLink="/wishlist"
-        class="px-8 py-3 text-[0.95rem] text-gray-900 no-underline hover:bg-gray-50"
-        (click)="mobileMenuOpen.set(false)"
-        >Wishlist</a
-      >
-      <a
-        routerLink="/cart"
-        class="px-8 py-3 text-[0.95rem] text-gray-900 no-underline hover:bg-gray-50"
-        (click)="mobileMenuOpen.set(false)"
-        >Cart</a
-      >
       @if (auth.currentUser()) {
         <a
           routerLink="/orders"
