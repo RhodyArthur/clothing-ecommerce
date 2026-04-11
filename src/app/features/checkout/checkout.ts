@@ -11,6 +11,7 @@ import { FloatLabelModule } from 'primeng/floatlabel';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { environment } from '../../../environments/environment.development';
 
 @Component({
   selector: 'app-checkout',
@@ -95,7 +96,7 @@ export class Checkout implements OnInit {
         .items()
         .map(
           (i) =>
-            `• ${i.name} (${i.color}, ${i.size}) x${i.quantity} — GHS ${(i.price * i.quantity).toFixed(2)}`
+            `• ${i.name} (${i.color}, ${i.size}) x${i.quantity} — GHS ${(i.price * i.quantity).toFixed(2)}`,
         )
         .join('\n');
 
@@ -119,13 +120,13 @@ export class Checkout implements OnInit {
         `*Total: GHS ${this.grandTotal().toFixed(2)}*`,
       ]
         .filter(Boolean)
-        .join('\n'); 
+        .join('\n');
 
       // 3 — Mark whatsapp_sent + open WhatsApp
       await this.orderService.markWhatsappSent(order.id);
 
-      const whatsappNumber = '233204530073';
-      const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;  // ← encode the whole thing
+      const whatsappNumber = environment.whatsappNumber;
+      const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`; // ← encode the whole thing
 
       // 4 — Clear cart + redirect
       this.cartService.clearCart();

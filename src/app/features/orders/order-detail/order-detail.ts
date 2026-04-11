@@ -7,6 +7,7 @@ import { TagModule } from 'primeng/tag';
 import { DividerModule } from 'primeng/divider';
 import { TimelineModule } from 'primeng/timeline';
 import { Order } from '../../../core/models/order';
+import { environment } from '../../../../environments/environment.development';
 
 @Component({
   selector: 'app-order-detail',
@@ -103,7 +104,7 @@ export class OrderDetail implements OnInit{
       `*Total: GHS ${o.total.toFixed(2)}*`
     ].join('\n');
 
-    const whatsappNumber = '233204530073';
+    const whatsappNumber = environment.whatsappNumber;
     window.open(
       `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`,
       '_blank'
