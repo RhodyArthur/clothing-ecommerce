@@ -1,0 +1,114 @@
+<div class="max-w-5xl mx-auto px-4 md:px-8 py-10">
+
+  <h1 class="text-2xl font-bold text-gray-900 mb-1">My Orders</h1>
+  <p class="text-sm text-gray-400 mb-8">Track and manage your orders</p>
+
+  <!-- Loading -->
+  @if (orderService.loading()) {
+    <div class="flex flex-col gap-4">
+      @for (n of [1,2,3]; track n) {
+        <div class="border border-gray-200 rounded-xl p-5 flex gap-4">
+          <p-skeleton width="4rem" height="5rem" borderRadius="6px" />
+          <div class="flex-1 flex flex-col gap-2 pt-1">
+            <p-skeleton width="40%" height="1rem" />
+            <p-skeleton width="25%" height="0.75rem" />
+            <p-skeleton width="20%" height="0.75rem" />
+          </div>
+          <p-skeleton width="5rem" height="1.5rem" borderRadius="6px" />
+        </div>
+      }
+    </div>
+
+  <!-- Empty state -->
+  } @else if (orderService.orders().length === 0) {
+    <div class="flex flex-col items-center justify-center py-28 text-center">
+      <i class="pi pi-shopping-bag text-gray-200 mb-5" style="font-size:3.5rem;"></i>
+      <p class="text-base font-semibold text-gray-700 mb-2">No orders yet</p>
+      <p class="text-sm text-gray-400 mb-7">
+        When you place an order it will appear here.
+      </p>
+      <p-button
+        label="Start Shopping"
+        routerLink="/products"
+        styleClass="!bg-gray-900 !border-gray-900 !text-white"
+      />
+    </div>
+
+  <!-- Order list -->
+  } @else {
+    <div class="flex flex-col gap-4">
+      @for (order of orderService.orders(); track order.id) {
+        <a
+          [routerLink]="['/orders', order.id]"
+          class="block no-underline text-inherit border border-gray-200 rounded-xl
+                 p-5 hover:border-gray-300 hover:shadow-sm transition-all duration-200
+                 cursor-pointer"
+        >
+          <div class="flex items-start gap-4">
+
+            <!-- First item thumbnail -->
+            <div class="w-16 h-20 rounded-lg overflow-hidden bg-gray-100 shrink-0">
+              @if (order.items[0]?.image_url) {
+                <img
+                  [src]="order.items[0].image_url"
+                  [alt]="order.items[0].name"
+                  class="w-full h-full object-cover"
+                />
+              } @else {
+                <div class="w-full h-full flex items-center justify-center">
+                  <i class="pi pi-image text-gray-300" style="font-size:1.25rem;"></i>
+                </div>
+              }
+            </div>
+
+            <!-- Order info -->
+            <div class="flex-1 min-w-0">
+
+              <!-- Order ID + status -->
+              <div class="flex items-center justify-between gap-3 mb-2 flex-wrap">
+                <span class="text-sm font-semibold text-gray-900">
+                  Order #{{ order.id.slice(0, 8).toUpperCase() }}
+                </span>
+                <p-tag
+                  [value]="order.status | titlecase"
+                  [severity]="getSeverity(order.status)"
+                  [icon]="'pi ' + getStatusIcon(order.status)"
+                />
+              </div>
+
+              <!-- Item names -->
+              <p class="text-sm text-gray-500 mb-1 truncate">
+                @if (order.items.length === 1) {
+                  {{ order.items[0].name }}
+                } @else {
+                  {{ order.items[0].name }}
+                  <span class="text-gray-400">
+                    +{{ order.items.length - 1 }} more item{{ order.items.length > 2 ? 's' : '' }}
+                  </span>
+                }
+              </p>
+
+              <!-- Date + total -->
+              <div class="flex items-center gap-3 flex-wrap">
+                <span class="text-xs text-gray-400">
+                  {{ order.created_at | date:'MMM d, y' }}
+                </span>
+                <span class="text-gray-200">•</span>
+                <span class="text-xs font-medium text-gray-700">
+                  GHS {{ order.total | number:'1.2-2' }}
+                </span>
+              </div>
+
+            </div>
+
+            <!-- Chevron -->
+            <i class="pi pi-chevron-right text-gray-300 self-center shrink-0"
+               style="font-size:0.75rem;"></i>
+
+          </div>
+        </a>
+      }
+    </div>
+  }
+
+</div>
