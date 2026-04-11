@@ -95,9 +95,9 @@ export class Checkout implements OnInit {
         .items()
         .map(
           (i) =>
-            `• ${i.name} (${i.color}, ${i.size}) x${i.quantity} — GHS ${(i.price * i.quantity).toFixed(2)}`,
+            `• ${i.name} (${i.color}, ${i.size}) x${i.quantity} — GHS ${(i.price * i.quantity).toFixed(2)}`
         )
-        .join('%0A');
+        .join('\n');
 
       const message = [
         `🛍 *New Order — #${order.id.slice(0, 8).toUpperCase()}*`,
@@ -119,14 +119,13 @@ export class Checkout implements OnInit {
         `*Total: GHS ${this.grandTotal().toFixed(2)}*`,
       ]
         .filter(Boolean)
-        .join('%0A');
+        .join('\n'); 
 
       // 3 — Mark whatsapp_sent + open WhatsApp
       await this.orderService.markWhatsappSent(order.id);
 
-      // Replace with your business WhatsApp number (international format, no +)
       const whatsappNumber = '233204530073';
-      const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${message}`;
+      const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;  // ← encode the whole thing
 
       // 4 — Clear cart + redirect
       this.cartService.clearCart();
