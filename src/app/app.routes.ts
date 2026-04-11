@@ -38,6 +38,20 @@ export const routes: Routes = [
         loadComponent: () => import('./features/checkout/checkout').then((m) => m.Checkout),
         canActivate: [authGuard],
       },
+      {
+        path: 'orders',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./features/orders/orders/orders')
+            .then(m => m.Orders)
+      },
+      {
+        path: 'orders/:id',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./features/orders/order-detail/order-detail')
+            .then(m => m.OrderDetail)
+      },
     ],
   },
 ];
