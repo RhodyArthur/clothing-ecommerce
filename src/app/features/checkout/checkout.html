@@ -1,0 +1,230 @@
+<p-toast position="top-right" />
+
+<div class="max-w-7xl mx-auto px-4 md:px-8 py-10">
+  <h1 class="text-2xl font-bold text-gray-900 mb-8">Checkout</h1>
+
+  <form [formGroup]="form" (ngSubmit)="placeOrder()">
+    <div class="flex flex-col lg:flex-row gap-8 items-stretch lg:items-start">
+      <!-- ══════════════════════════════
+           LEFT — Form
+      ══════════════════════════════ -->
+      <div class="flex-1 min-w-0 w-full flex flex-col gap-6 lg:max-w-2xl xl:max-w-3xl">
+        <!-- Contact Information -->
+        <div class="border border-gray-200 rounded-lg p-6">
+          <h2 class="text-base font-semibold text-gray-900 mb-5">Contact Information</h2>
+
+          <!-- Full Name + Email -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="flex flex-col gap-1.5">
+              <p-float-label variant="on">
+                <input
+                  id="fullName"
+                  pInputText
+                  formControlName="fullName"
+                  class="w-full"
+                  [class.ng-invalid]="isInvalid('fullName')"
+                  [class.ng-dirty]="isInvalid('fullName')"
+                />
+                <label for="fullName">Full Name <span class="text-red-500">*</span></label>
+              </p-float-label>
+              @if (isInvalid('fullName')) {
+                <span class="text-xs text-red-500">Full name is required</span>
+              }
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <p-float-label variant="on">
+                <input
+                  id="email"
+                  pInputText
+                  formControlName="email"
+                  type="email"
+                  class="w-full"
+                  [class.ng-invalid]="isInvalid('email')"
+                  [class.ng-dirty]="isInvalid('email')"
+                />
+                <label for="email">Email <span class="text-red-500">*</span></label>
+              </p-float-label>
+              @if (isInvalid('email')) {
+                <span class="text-xs text-red-500">A valid email is required</span>
+              }
+            </div>
+          </div>
+
+          <!-- Phone Number -->
+          <div class="flex flex-col gap-1.5">
+            <p-float-label variant="on">
+              <input
+                id="phoneNumber"
+                pInputText
+                formControlName="phoneNumber"
+                type="tel"
+                class="w-full"
+                [class.ng-invalid]="isInvalid('phoneNumber')"
+                [class.ng-dirty]="isInvalid('phoneNumber')"
+              />
+              <label for="phoneNumber">Phone Number <span class="text-red-500">*</span></label>
+            </p-float-label>
+            @if (isInvalid('phoneNumber')) {
+              <span class="text-xs text-red-500">Phone number is required</span>
+            }
+          </div>
+        </div>
+
+        <!-- Delivery Address -->
+        <div class="border border-gray-200 rounded-lg p-6">
+          <h2 class="text-base font-semibold text-gray-900 mb-5">Delivery Address</h2>
+
+          <!-- Street Address -->
+          <div class="flex flex-col gap-1.5 mb-4">
+            <p-float-label variant="on">
+              <input
+                id="street"
+                pInputText
+                formControlName="street"
+                class="w-full"
+                [class.ng-invalid]="isInvalid('street')"
+                [class.ng-dirty]="isInvalid('street')"
+              />
+              <label for="street">Street Address <span class="text-red-500">*</span></label>
+            </p-float-label>
+            @if (isInvalid('street')) {
+              <span class="text-xs text-red-500">Street address is required</span>
+            }
+          </div>
+
+          <!-- City + Postal Code -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="flex flex-col gap-1.5">
+              <p-float-label variant="on">
+                <input
+                  id="city"
+                  pInputText
+                  formControlName="city"
+                  class="w-full"
+                  [class.ng-invalid]="isInvalid('city')"
+                  [class.ng-dirty]="isInvalid('city')"
+                />
+                <label for="city">City <span class="text-red-500">*</span></label>
+              </p-float-label>
+              @if (isInvalid('city')) {
+                <span class="text-xs text-red-500">City is required</span>
+              }
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <p-float-label variant="on">
+                <input
+                  id="postalCode"
+                  pInputText
+                  formControlName="postalCode"
+                  class="w-full"
+                  [class.ng-invalid]="isInvalid('postalCode')"
+                  [class.ng-dirty]="isInvalid('postalCode')"
+                />
+                <label for="postalCode">Postal Code <span class="text-red-500">*</span></label>
+              </p-float-label>
+              @if (isInvalid('postalCode')) {
+                <span class="text-xs text-red-500">Postal code is required</span>
+              }
+            </div>
+          </div>
+
+          <!-- Order Notes -->
+          <div class="flex flex-col gap-1.5">
+            <p-float-label variant="on">
+              <textarea
+                id="orderNotes"
+                pTextarea
+                formControlName="orderNotes"
+                rows="3"
+                class="w-full resize-none"
+              ></textarea>
+              <label for="orderNotes">Order Notes (Optional)</label>
+            </p-float-label>
+          </div>
+        </div>
+
+        <!-- Place Order Button -->
+        <p-button
+          type="submit"
+          label="Place Order via WhatsApp"
+          icon="pi pi-whatsapp"
+          [loading]="submitting()"
+          styleClass="w-full !bg-gray-900 !border-gray-900 !text-white
+                      hover:!opacity-85 !py-3.5 !text-sm !font-semibold"
+        />
+      </div>
+
+      <!-- ══════════════════════════════
+           RIGHT — Order Summary
+      ══════════════════════════════ -->
+      <div class="w-full lg:w-95 shrink-0 lg:sticky lg:top-24">
+        <div class="border border-gray-200 rounded-lg p-6">
+          <h2 class="text-base font-semibold text-gray-900 mb-5">Order Summary</h2>
+
+          <!-- Items list -->
+          <div class="flex flex-col gap-4 mb-5">
+            @for (item of cartService.items(); track item.product_id + item.size + item.color) {
+              <div class="flex items-start gap-3">
+                <!-- Thumbnail -->
+                <div class="w-14 h-16 rounded overflow-hidden bg-gray-100 shrink-0">
+                  <img
+                    [src]="item.image_url || 'assets/images/placeholder.jpg'"
+                    [alt]="item.name"
+                    class="w-full h-full object-cover"
+                  />
+                </div>
+
+                <!-- Info -->
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium text-gray-900 truncate">{{ item.name }}</p>
+                  <p class="text-xs text-gray-400 mt-0.5">{{ item.color }} / {{ item.size }}</p>
+                  <p class="text-xs text-gray-400">Qty: {{ item.quantity }}</p>
+                </div>
+
+                <!-- Line total -->
+                <p class="text-sm font-semibold text-gray-900 shrink-0">
+                  GHS {{ item.price * item.quantity | number: '1.2-2' }}
+                </p>
+              </div>
+            }
+          </div>
+
+          <div class="border-t border-gray-100 pt-4 flex flex-col gap-2 mb-4">
+            <!-- Subtotal -->
+            <div class="flex justify-between text-sm text-gray-500">
+              <span>Subtotal</span>
+              <span class="text-gray-900">GHS {{ cartService.total() | number: '1.2-2' }}</span>
+            </div>
+
+            <!-- Shipping -->
+            <div class="flex justify-between text-sm text-gray-500">
+              <span>Shipping</span>
+              <span [class.text-green-600]="shippingCost() === 0" class="font-medium">
+                {{ shippingCost() === 0 ? 'FREE' : 'GHS ' + (shippingCost() | number: '1.2-2') }}
+              </span>
+            </div>
+          </div>
+
+          <div class="border-t border-gray-100 pt-4 mb-5">
+            <div class="flex justify-between text-base font-semibold text-gray-900">
+              <span>Total</span>
+              <span>GHS {{ grandTotal() | number: '1.2-2' }}</span>
+            </div>
+          </div>
+
+          <!-- WhatsApp notice -->
+          <div class="bg-green-50 border border-green-100 rounded-lg px-4 py-3">
+            <div class="flex items-start gap-2">
+              <i class="pi pi-whatsapp text-green-600 mt-0.5" style="font-size: 14px"></i>
+              <p class="text-xs text-green-700 leading-relaxed">
+                Your order details will be sent via WhatsApp for confirmation.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

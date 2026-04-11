@@ -1,0 +1,44 @@
+<footer class="bg-[#f8f8f6] border-t border-gray-200 mt-auto">
+
+  <div class="px-8 py-16 grid grid-cols-2 sm:grid-cols-4 gap-12 max-w-screen-2xl mx-auto">
+
+    <!-- Brand -->
+    <div class="flex flex-col gap-3">
+      <span class="text-base font-bold tracking-widest text-gray-900">TheFooseGuy</span>
+      <p class="text-sm text-gray-400 leading-relaxed max-w-55">
+        Modern fashion for the contemporary lifestyle.
+      </p>
+    </div>
+
+    <!-- Shop -->
+    <div class="flex flex-col gap-3">
+      <h4 class="text-sm font-semibold text-gray-900 tracking-wide">Shop</h4>
+      <a routerLink="/products" [queryParams]="{ category: 'women' }"      class="text-sm text-gray-400 no-underline hover:text-gray-900 transition-colors">Women</a>
+      <a routerLink="/products" [queryParams]="{ category: 'men' }"        class="text-sm text-gray-400 no-underline hover:text-gray-900 transition-colors">Men</a>
+      <a routerLink="/products" [queryParams]="{ category: 'accessories' }" class="text-sm text-gray-400 no-underline hover:text-gray-900 transition-colors">Accessories</a>
+    </div>
+
+    <!-- Help -->
+    <div class="flex flex-col gap-3">
+      <h4 class="text-sm font-semibold text-gray-900 tracking-wide">Help</h4>
+      <a routerLink="/contact"  class="text-sm text-gray-400 no-underline hover:text-gray-900 transition-colors">Contact Us</a>
+      <a routerLink="/shipping" class="text-sm text-gray-400 no-underline hover:text-gray-900 transition-colors">Shipping Info</a>
+      <a routerLink="/faq"      class="text-sm text-gray-400 no-underline hover:text-gray-900 transition-colors">FAQ</a>
+    </div>
+
+    <!-- About -->
+    <div class="flex flex-col gap-3">
+      <h4 class="text-sm font-semibold text-gray-900 tracking-wide">About</h4>
+      <a routerLink="/about"          class="text-sm text-gray-400 no-underline hover:text-gray-900 transition-colors">Our Story</a>
+      <a routerLink="/sustainability"  class="text-sm text-gray-400 no-underline hover:text-gray-900 transition-colors">Sustainability</a>
+      <a routerLink="/privacy"         class="text-sm text-gray-400 no-underline hover:text-gray-900 transition-colors">Privacy Policy</a>
+      <a routerLink="/terms"           class="text-sm text-gray-400 no-underline hover:text-gray-900 transition-colors">Terms &amp; Conditions</a>
+    </div>
+
+  </div>
+
+  <div class="border-t border-gray-200 text-center py-5 text-xs text-gray-400">
+    &copy; {{ year }} TheFooseGuy. All rights reserved.
+  </div>
+
+</footer>

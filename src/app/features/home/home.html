@@ -1,0 +1,144 @@
+<!-- ══════════════════════════════
+     HERO
+══════════════════════════════ -->
+<section
+  class="relative flex items-center justify-center min-h-[calc(100vh-68px)] bg-[url('/assets/images/hero-image.jpg')] bg-center bg-cover overflow-hidden"
+>
+  <div class="absolute inset-0 bg-black/30"></div>
+
+  <div class="relative text-center px-6 animate-[fadeUp_0.8s_ease_both]">
+    <h1 class="text-[clamp(3rem,8vw,5.5rem)] font-bold tracking-wide leading-none mb-4 text-white">
+      NEW COLLECTION
+    </h1>
+    <p class="text-[clamp(1rem,2vw,1.15rem)] font-light tracking-wide mb-10 text-white">
+      Discover the latest trends in contemporary fashion
+    </p>
+    <a
+      routerLink="/products"
+      class="inline-flex items-center gap-2 bg-white text-gray-900 text-sm font-medium tracking-wide px-8 py-3 rounded no-underline hover:bg-gray-100 hover:-translate-y-px transition-all duration-200"
+    >
+      Shop Now
+      <i class="pi pi-arrow-right" style="font-size: 0.875rem; color: black"></i>
+    </a>
+  </div>
+</section>
+
+<!-- ══════════════════════════════
+     CATEGORIES
+══════════════════════════════ -->
+<section class="max-w-screen-2xl mx-auto px-8 py-16">
+  <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-bold text-center text-gray-900 mb-12 tracking-wide">
+    Shop by Category
+  </h2>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+    @for (cat of categories; track cat.label) {
+      <a
+        class="relative block overflow-hidden rounded-sm no-underline group aspect-square"
+        routerLink="/products"
+        [queryParams]="{ category: cat.query }"
+      >
+        <img
+          [src]="cat.image"
+          [alt]="cat.label"
+          class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+        />
+        <div class="absolute inset-0 bg-linear-to-t from-black/55 to-transparent"></div>
+        <div class="absolute bottom-8 left-7 text-white">
+          <h3 class="text-2xl font-semibold mb-1">{{ cat.label }}</h3>
+          <p class="text-sm font-light opacity-85">{{ cat.subtitle }}</p>
+        </div>
+      </a>
+    }
+  </div>
+</section>
+
+<!-- ══════════════════════════════
+     FEATURED PRODUCTS
+══════════════════════════════ -->
+<section class="bg-[#fafafa] py-20 px-8">
+  <div class="max-w-screen-2xl mx-auto">
+    <h2
+      class="text-[clamp(1.5rem,3vw,2rem)] font-bold text-center text-gray-900 mb-12 tracking-wide"
+    >
+      Featured Products
+    </h2>
+
+    <!-- Skeleton -->
+    @if (productService.loading()) {
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-5">
+        @for (n of [1, 2, 3, 4]; track n) {
+          <div>
+            <p-skeleton width="100%" height="7rem" class="mb-2"></p-skeleton>
+            <p-skeleton shape="rectangle" width="6.25rem" class="mb-2"></p-skeleton>
+            <p-skeleton width="35%" height="0.75rem"></p-skeleton>
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-5">
+        @for (product of productService.activeProducts().slice(0, 4); track product.id) {
+          <a class="group block no-underline text-inherit" [routerLink]="['/products', product.id]">
+            <!-- Image -->
+            <div class="relative overflow-hidden rounded-sm bg-gray-100 mb-3 aspect-square">
+              <img
+                [src]="product.image_urls[0]"
+                [alt]="product.name"
+                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+              />
+              <!-- Wishlist btn -->
+              <button
+                class="absolute top-3 right-3 w-9 h-9 rounded-full bg-white flex items-center justify-center
+                       shadow-sm border-none cursor-pointer transition-transform duration-150 hover:scale-110"
+                [class.text-red-600]="isWishlisted(product.id)"
+                [class.text-gray-900]="!isWishlisted(product.id)"
+                (click)="toggleWishlist($event, product.id)"
+                aria-label="Toggle wishlist"
+              >
+                <i
+                    [class]="
+                      isWishlisted(product.id) ? 'pi pi-heart-fill text-gray-950' : 'pi pi-heart'
+                    "
+                    style="font-size: 14px"
+                  ></i>
+              </button>
+            </div>
+
+            <!-- Info -->
+            <p class="text-sm text-gray-900 truncate mb-1 px-0.5">{{ product.name }}</p>
+            <p class="text-sm font-medium text-gray-500 px-0.5">
+              {{ product.price | currency: 'GHS ' : 'symbol' : '1.2-2' }}
+            </p>
+          </a>
+        }
+      </div>
+
+      <div class="text-center mt-12">
+        <a
+          routerLink="/products"
+          class="inline-flex items-center gap-2 bg-white text-gray-900 text-sm font-medium tracking-wide px-8 py-3 rounded no-underline border border-gray-300 hover:bg-gray-100 hover:-translate-y-px transition-all duration-200"
+        >
+          View All Products
+        </a>
+      </div>
+    }
+  </div>
+</section>
+
+<!-- ══════════════════════════════
+     PROMO BANNER
+══════════════════════════════ -->
+<section class="bg-[#111] flex items-center justify-center py-28 px-8">
+  <div class="text-center text-white">
+    <h2 class="text-[clamp(2.5rem,6vw,4.5rem)] font-extrabold tracking-[0.06em] mb-3">
+      EASTER SALE
+    </h2>
+    <p class="text-base font-light mb-10 opacity-85">Up to 30% off selected items</p>
+    <a
+      routerLink="/products"
+      [queryParams]="{ sale: true }"
+      class="inline-block bg-white text-[#111] text-sm font-semibold tracking-wide px-10 py-3.5 rounded no-underline hover:bg-gray-200 hover:-translate-y-px transition-all duration-200"
+    >
+      Shop Sale
+    </a>
+  </div>
+</section>

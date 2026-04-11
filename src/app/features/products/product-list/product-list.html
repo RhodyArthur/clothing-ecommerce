@@ -1,0 +1,268 @@
+<div class="max-w-screen-2xl mx-auto px-4 md:px-8 py-8 md:py-10">
+  <!-- Page header -->
+  <div class="mb-6">
+    <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-1">
+      @if (selectedCategories().length === 1) {
+        {{ selectedCategories()[0] }}
+      } @else {
+        All Products
+      }
+    </h1>
+    <p class="text-sm text-gray-400">
+      {{ filteredProducts().length }} product{{ filteredProducts().length !== 1 ? 's' : '' }}
+    </p>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       MOBILE: Filter button + sort row
+  ══════════════════════════════════════════ -->
+  <div class="flex items-center gap-3 mb-6 md:hidden">
+    <div class="flex items-center gap-1.5">
+      <p-button
+        label="Filters"
+        icon="pi pi-sliders-h"
+        class="p-button-outlined"
+        (onClick)="openFilters()"
+      ></p-button>
+      @if (hasActiveFilters()) {
+        <span class="w-2 h-2 bg-[#1a1a1a] rounded-full inline-block ml-2"></span>
+      }
+    </div>
+
+    <p-select
+      [options]="sortOptions"
+      optionLabel="label"
+      optionValue="value"
+      [ngModel]="sortBy()"
+      (ngModelChange)="sortBy.set($event)"
+      class="flex-1"
+    ></p-select>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       MOBILE: Filter drawer overlay
+  ══════════════════════════════════════════ -->
+  <p-drawer
+    header="Filters"
+    [visible]="filterDrawerOpen()"
+    position="left"
+    [modal]="true"
+    [closable]="true"
+    class="md:hidden"
+    (onHide)="closeFilters()"
+  >
+    <ng-container *ngTemplateOutlet="filterContent"></ng-container>
+  </p-drawer>
+
+  <!-- ══════════════════════════════════════════
+       DESKTOP: Sidebar + Grid layout
+  ══════════════════════════════════════════ -->
+  <div class="flex gap-10">
+    <!-- Desktop sidebar (hidden on mobile) -->
+    <aside class="hidden md:block w-50 shrink-0">
+      <!-- Sort -->
+      <div class="mb-7">
+        <p-select
+          [options]="sortOptions"
+          optionLabel="label"
+          optionValue="value"
+          [ngModel]="sortBy()"
+          (ngModelChange)="sortBy.set($event)"
+          class="w-full"
+        ></p-select>
+      </div>
+
+      <ng-container *ngTemplateOutlet="filterContent"></ng-container>
+    </aside>
+
+    <!-- ══════════════════════════════════════════
+         PRODUCT GRID
+    ══════════════════════════════════════════ -->
+    <div class="flex-1 min-w-0">
+      <!-- Loading skeletons -->
+      @if (productService.loading()) {
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
+          @for (n of [1, 2, 3, 4, 5, 6]; track n) {
+            <div>
+              <p-skeleton width="100%" height="7rem" class="mb-2"></p-skeleton>
+              <p-skeleton shape="rectangle" width="6.25rem" class="mb-2"></p-skeleton>
+              <p-skeleton width="35%" height="0.75rem"></p-skeleton>
+            </div>
+          }
+        </div>
+
+        <!-- Empty state -->
+      } @else if (filteredProducts().length === 0) {
+        <div class="flex flex-col items-center justify-center py-20 text-center">
+          <i class="pi pi-search text-[2.5rem] mb-4"></i>
+
+          <p class="text-base font-medium text-gray-700 mb-2">No products found</p>
+          <p class="text-sm text-gray-400 mb-5">Try adjusting your filters</p>
+          <p-button
+            label="Clear Filters"
+            severity="secondary"
+            [outlined]="true"
+            (onClick)="clearFilters()"
+          ></p-button>
+        </div>
+
+        <!-- Products -->
+      } @else {
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
+          @for (product of filteredProducts(); track product.id) {
+            <a
+              [routerLink]="['/products', product.id]"
+              class="group block no-underline text-inherit"
+            >
+              <!-- Image -->
+              <div class="relative overflow-hidden rounded-sm bg-gray-100 mb-2.5 aspect-square">
+                <img
+                  [src]="product.image_urls[0] || 'assets/images/placeholder.jpg'"
+                  [alt]="product.name"
+                  class="w-full h-full object-cover transition-transform duration-450 ease-in-out group-hover:scale-[1.03]"
+                />
+                <!-- Wishlist -->
+                <button
+                  (click)="toggleWishlist($event, product.id)"
+                  [style.color]="isWishlisted(product.id) ? '#dc2626' : '#1a1a1a'"
+                  class="absolute top-2 right-2 w-8 h-8 rounded-full bg-white border-0 flex items-center justify-center cursor-pointer shadow-sm"
+                  aria-label="Toggle wishlist"
+                >
+                  <i
+                    [class]="
+                      isWishlisted(product.id) ? 'pi pi-heart-fill text-gray-950' : 'pi pi-heart'
+                    "
+                    style="font-size: 14px"
+                  ></i>
+                </button>
+
+                @if (product.stock_count === 0) {
+                  <span
+                    class="absolute bottom-2 left-2 px-2 py-0.5 bg-black/70 text-white text-[0.65rem] rounded-sm tracking-[0.05em]"
+                  >
+                    OUT OF STOCK
+                  </span>
+                }
+              </div>
+
+              <!-- Info -->
+              <p class="text-sm text-[#1a1a1a] mb-0.5 truncate">
+                {{ product.name }}
+              </p>
+              <p class="text-[0.7rem] text-gray-400 uppercase tracking-[0.06em] mb-0.5">
+                {{ product.category }}
+              </p>
+              <p class="text-sm font-medium text-gray-700">
+                GHS {{ product.price | number: '1.2-2' }}
+              </p>
+            </a>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SHARED FILTER CONTENT TEMPLATE
+     (used in both drawer and desktop sidebar)
+══════════════════════════════════════════ -->
+<ng-template #filterContent>
+  <!-- Category -->
+  <div class="mb-7">
+    <h3 class="text-[0.9rem] font-semibold text-[#1a1a1a] mb-3.5">Category</h3>
+    <div class="flex flex-col gap-2.5">
+      @for (cat of categories; track cat) {
+        <label class="flex items-center gap-2.5 cursor-pointer text-sm text-gray-700">
+          <input
+            type="checkbox"
+            [checked]="selectedCategories().includes(cat)"
+            (change)="toggleCategory(cat)"
+            class="w-4 h-4 accent-black cursor-pointer"
+          />
+          {{ cat }}
+        </label>
+      }
+    </div>
+  </div>
+
+  <!-- Size -->
+  <div class="mb-7">
+    <h3 class="text-[0.9rem] font-semibold text-[#1a1a1a] mb-3.5">Size</h3>
+    <div class="flex flex-wrap gap-2">
+      @for (size of sizes; track size) {
+        <button
+          (click)="toggleSize(size)"
+          [style.background]="selectedSizes().includes(size) ? '#1a1a1a' : '#fff'"
+          [style.color]="selectedSizes().includes(size) ? '#fff' : '#374151'"
+          [style.border-color]="selectedSizes().includes(size) ? '#1a1a1a' : '#d1d5db'"
+          class="px-2.5 py-1 border rounded text-[0.8rem] cursor-pointer transition-all duration-150"
+        >
+          {{ size }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Color -->
+  <div class="mb-7">
+    <h3 class="text-[0.9rem] font-semibold text-[#1a1a1a] mb-3.5">Color</h3>
+    <div class="flex flex-col gap-2.5">
+      @for (color of colors; track color) {
+        <label class="flex items-center gap-2.5 cursor-pointer text-sm text-gray-700">
+          <input
+            type="checkbox"
+            [checked]="selectedColors().includes(color)"
+            (change)="toggleColor(color)"
+            class="w-4 h-4 accent-black cursor-pointer"
+          />
+          {{ color }}
+        </label>
+      }
+    </div>
+  </div>
+
+  <!-- Price Range -->
+  <div class="mb-7">
+    <h3 class="text-[0.9rem] font-semibold text-[#1a1a1a] mb-3.5">Price Range</h3>
+    <div class="flex justify-between text-sm text-gray-500 mb-3">
+      <span>GHS {{ minPrice() }}</span>
+      <span>GHS {{ maxPrice() }}</span>
+    </div>
+    <p-slider
+      [ngModel]="[minPrice(), maxPrice()]"
+      (ngModelChange)="minPrice.set($event[0]); maxPrice.set($event[1])"
+      [range]="true"
+      [min]="0"
+      [max]="500"
+      class="w-full mb-4"
+    ></p-slider>
+    <div class="flex items-center gap-2 mt-4">
+      <input
+        type="number"
+        [ngModel]="minPrice()"
+        (ngModelChange)="minPrice.set($event)"
+        min="0"
+        [max]="maxPrice()"
+        class="w-25 px-2 py-1.5 border border-gray-300 rounded text-[0.8rem] text-[#1a1a1a] outline-none"
+      />
+      <span class="text-gray-400 text-sm">-</span>
+      <input
+        type="number"
+        [ngModel]="maxPrice()"
+        (ngModelChange)="maxPrice.set($event)"
+        [min]="minPrice()"
+        class="w-25 px-2 py-1.5 border border-gray-300 rounded text-[0.8rem] text-[#1a1a1a] outline-none"
+      />
+    </div>
+  </div>
+
+  <!-- Clear filters -->
+  <p-button
+    label="Clear All Filters"
+    severity="secondary"
+    [outlined]="true"
+    class="w-full"
+    (onClick)="closeFilters()"
+  ></p-button>
+</ng-template>
