@@ -144,38 +144,37 @@ export class Cart {
   // ── Supabase helpers ───────────────────────────────
 
   private async fetchFromSupabase(): Promise<void> {
-    this._loading.set(true);
-    try {
-      const { data, error } = await this.supabase.client
-        .from('cart_items')
-        .select(
-          `
-          quantity, size, color,
-          products (id, name, price, image_urls)
-        `,
-        )
-        .eq('user_id', this.auth.currentUser()!.id);
+  this._loading.set(true);
+  try {
+    const { data, error } = await this.supabase.client
+      .from('cart_items')
+      .select(`
+        quantity, size, color,
+        products (id, name, price, image_urls)
+      `)
+      .eq('user_id', this.auth.currentUser()!.id);
 
-      if (error) throw error;
+    if (error) throw error;
 
-      
-      const items: CartItem[] = ((data as unknown as SupabaseCartRow[]) ?? []).map((row) => ({
-        product_id: row.products[0].id,
-        name: row.products[0].name,
-        price: row.products[0].price,
-        image_url: row.products[0].image_urls[0] ?? '',
-        quantity: row.quantity,
-        size: row.size,
-        color: row.color,
+    const items: CartItem[] = ((data as unknown as SupabaseCartRow[]) ?? [])
+      .filter(row => row.products !== null)   // ← skip orphaned cart items
+      .map(row => ({
+        product_id: row.products!.id,          // ← direct object access, not [0]
+        name:       row.products!.name,
+        price:      row.products!.price,
+        image_url:  row.products!.image_urls?.[0] ?? '',
+        quantity:   row.quantity,
+        size:       row.size,
+        color:      row.color,
       }));
 
-      this._items.set(items);
-    } catch (err) {
-      console.error('[CartService] fetchFromSupabase:', err);
-    } finally {
-      this._loading.set(false);
-    }
+    this._items.set(items);
+  } catch (err) {
+    console.error('[CartService] fetchFromSupabase:', err);
+  } finally {
+    this._loading.set(false);
   }
+}
 
   private async upsertToSupabase(item: CartItem): Promise<void> {
     const userId = this.auth.currentUser()?.id;
