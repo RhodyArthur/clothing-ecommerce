@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { Cart } from '../../core/services/cart';
 import { Order } from '../../core/services/order';
 import { Auth } from '../../core/services/auth';
@@ -18,7 +18,6 @@ import { MessageService } from 'primeng/api';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    RouterLink,
     InputTextModule,
     TextareaModule,
     FloatLabelModule,

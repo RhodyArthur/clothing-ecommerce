@@ -22,7 +22,6 @@ import { MessageModule } from 'primeng/message';
     MessageModule,
   ],
   templateUrl: './register.html',
-  styleUrls: ['./register.css'],
 })
 export class Register {
   private fb = inject(FormBuilder);
