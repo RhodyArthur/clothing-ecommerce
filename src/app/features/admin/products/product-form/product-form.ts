@@ -46,8 +46,20 @@ export class ProductForm implements OnInit {
   imageUrls = signal<string[]>([]);
 
   // Chip input helpers
-  sizeInput = '';
+  sizeInput: string | null = null;
   colorInput = '';
+
+  sizeOptions = [
+    { label: 'XS', value: 'XS' },
+    { label: 'S', value: 'S' },
+    { label: 'M', value: 'M' },
+    { label: 'L', value: 'L' },
+    { label: 'XL', value: 'XL' },
+    { label: 'XXL', value: 'XXL' },
+    { label: '3XL', value: '3XL' },
+    { label: '4XL', value: '4XL' },
+    { label: 'One Size', value: 'ONE SIZE' },
+  ];
 
   categories = [
     { label: 'Women', value: 'women' },
@@ -141,13 +153,15 @@ export class ProductForm implements OnInit {
   // ── Size / Color chip management ───────────────────
 
   addSize(): void {
-    const val = this.sizeInput.trim().toUpperCase();
+    const val = this.sizeInput;
     if (!val) return;
+    const validValues = this.sizeOptions.map((s) => s.value);
+    if (!validValues.includes(val)) return;
     const current = this.form.value.sizes ?? [];
     if (!current.includes(val)) {
       this.form.patchValue({ sizes: [...current, val] });
     }
-    this.sizeInput = '';
+    this.sizeInput = null;
   }
 
   removeSize(size: string): void {
@@ -180,6 +194,11 @@ export class ProductForm implements OnInit {
       this.form.markAllAsTouched();
       return;
     }
+
+    const formSnapshot = this.form.getRawValue();
+    const imageUrlsSnapshot = [...this.imageUrls()];
+    const sizeInputSnapshot = this.sizeInput;
+    const colorInputSnapshot = this.colorInput;
 
     this.submitting.set(true);
 
@@ -217,6 +236,11 @@ export class ProductForm implements OnInit {
       await this.productService.fetchProducts();
       setTimeout(() => this.router.navigate(['/admin/products']), 1000);
     } catch (err: unknown) {
+      this.form.patchValue(formSnapshot);
+      this.imageUrls.set(imageUrlsSnapshot);
+      this.sizeInput = sizeInputSnapshot;
+      this.colorInput = colorInputSnapshot;
+
       const message = err instanceof Error ? err.message : 'An error occurred';
       this.messages.add({
         severity: 'error',

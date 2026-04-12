@@ -174,18 +174,20 @@
               >Sizes</label
             >
             <div class="flex gap-2 mb-3">
-              <input
+              <p-select
                 id="size-input"
-                pInputText
                 [(ngModel)]="sizeInput"
                 [ngModelOptions]="{ standalone: true }"
-                placeholder="e.g. M"
-                class="flex-1"
-                (keydown.enter)="$event.preventDefault(); addSize()"
+                [options]="sizeOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select size"
+                styleClass="flex-1"
               />
               <button
                 type="button"
                 (click)="addSize()"
+                [disabled]="!sizeInput"
                 class="px-3 py-2 bg-gray-900 text-white text-xs rounded-lg border-none cursor-pointer hover:opacity-85"
               >
                 Add
