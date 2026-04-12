@@ -149,6 +149,33 @@ export class Order {
     }
   }
 
+  async confirmDelivery(orderId: string): Promise<boolean> {
+    try {
+      const { error } = await this.supabaseService.client
+        .from('orders')
+        .update({
+          status:                'delivered',
+          confirmed_by_customer: true
+        })
+        .eq('id', orderId)
+        .eq('user_id', this.authService.currentUser()!.id); // safety: only own orders
+
+      if (error) throw error;
+
+      this._orders.update(current =>
+        current.map(o =>
+          o.id === orderId
+            ? { ...o, status: 'delivered', confirmed_by_customer: true }
+            : o
+        )
+      );
+      return true;
+    } catch (err) {
+      console.error('[OrderService] confirmDelivery:', err);
+      return false;
+    }
+  }
+
   // ------------------------------------------------
   // Clear local state (e.g. on logout)
   // ------------------------------------------------

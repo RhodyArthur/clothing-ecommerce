@@ -1,0 +1,151 @@
+<div>
+  <h1 class="text-xl font-bold text-gray-900 mb-6">Dashboard</h1>
+
+  <!-- Metric cards -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+
+    @if (loading()) {
+      @for (n of [1,2,3,4]; track n) {
+        <div class="bg-white border border-gray-200 rounded-xl p-5">
+          <p-skeleton width="60%" height="0.75rem" styleClass="mb-3" />
+          <p-skeleton width="40%" height="1.5rem" />
+        </div>
+      }
+    } @else {
+
+      <div class="bg-white border border-gray-200 rounded-xl p-5">
+        <p class="text-xs font-medium text-gray-400 mb-2 uppercase tracking-wide">
+          Total Orders
+        </p>
+        <p class="text-2xl font-bold text-gray-900">{{ totalOrders() }}</p>
+      </div>
+
+      <div class="bg-white border border-gray-200 rounded-xl p-5">
+        <p class="text-xs font-medium text-gray-400 mb-2 uppercase tracking-wide">
+          Revenue
+        </p>
+        <p class="text-2xl font-bold text-gray-900">
+          GHS {{ totalRevenue() | number:'1.0-0' }}
+        </p>
+      </div>
+
+      <div class="bg-white border border-gray-200 rounded-xl p-5">
+        <p class="text-xs font-medium text-gray-400 mb-2 uppercase tracking-wide">
+          Pending Orders
+        </p>
+        <p class="text-2xl font-bold text-gray-900">{{ pendingOrders() }}</p>
+        @if (pendingOrders() > 0) {
+          <p class="text-xs text-amber-500 mt-1">Needs attention</p>
+        }
+      </div>
+
+      <div class="bg-white border border-gray-200 rounded-xl p-5">
+        <p class="text-xs font-medium text-gray-400 mb-2 uppercase tracking-wide">
+          Low Stock
+        </p>
+        <p class="text-2xl font-bold text-gray-900">{{ lowStockProducts().length }}</p>
+        @if (lowStockProducts().length > 0) {
+          <p class="text-xs text-red-500 mt-1">Review inventory</p>
+        }
+      </div>
+
+    }
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- Recent orders -->
+    <div class="lg:col-span-2 bg-white border border-gray-200 rounded-xl p-5">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-sm font-semibold text-gray-900">Recent Orders</h2>
+        <a routerLink="/admin/orders"
+           class="text-xs text-gray-400 no-underline hover:text-gray-700">
+          View all
+        </a>
+      </div>
+
+      @if (loading()) {
+        @for (n of [1,2,3,4,5]; track n) {
+          <div class="flex items-center gap-3 py-3 border-b border-gray-50 last:border-0">
+            <p-skeleton width="100%" height="1rem" />
+          </div>
+        }
+      } @else if (recentOrders().length === 0) {
+        <p class="text-sm text-gray-400 py-6 text-center">No orders yet</p>
+      } @else {
+        <div class="divide-y divide-gray-50">
+          @for (order of recentOrders(); track order.id) {
+            <a
+              [routerLink]="['/admin/orders']"
+              [queryParams]="{ id: order.id }"
+              class="flex items-center justify-between py-3 no-underline
+                     hover:bg-gray-50 -mx-2 px-2 rounded transition-colors"
+            >
+              <div class="min-w-0">
+                <p class="text-sm font-medium text-gray-900">
+                  #{{ order.id.slice(0,8).toUpperCase() }}
+                </p>
+                <p class="text-xs text-gray-400">
+                  {{ order.created_at | date:'MMM d, h:mm a' }}
+                </p>
+              </div>
+                <div class="flex items-center gap-3 shrink-0">
+                <span class="text-sm font-medium text-gray-900">
+                  GHS {{ order.total | number:'1.2-2' }}
+                </span>
+                <p-tag
+                  [value]="order.status | titlecase"
+                  [severity]="getSeverity(order.status)"
+                />
+              </div>
+            </a>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Low stock alerts -->
+    <div class="bg-white border border-gray-200 rounded-xl p-5">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-sm font-semibold text-gray-900">Low Stock</h2>
+        <a routerLink="/admin/products"
+           class="text-xs text-gray-400 no-underline hover:text-gray-700">
+          View all
+        </a>
+      </div>
+
+      @if (loading()) {
+        @for (n of [1,2,3]; track n) {
+          <div class="py-3 border-b border-gray-50">
+            <p-skeleton width="80%" height="0.875rem" styleClass="mb-1" />
+            <p-skeleton width="40%" height="0.75rem" />
+          </div>
+        }
+      } @else if (lowStockProducts().length === 0) {
+        <div class="text-center py-6">
+          <i class="pi pi-check-circle text-green-400 mb-2" style="font-size:1.5rem;"></i>
+          <p class="text-xs text-gray-400">All products well stocked</p>
+        </div>
+      } @else {
+        <div class="divide-y divide-gray-50">
+          @for (product of lowStockProducts(); track product.id) {
+            <a
+              [routerLink]="['/admin/products', product.id, 'edit']"
+              class="flex items-center justify-between py-3 no-underline
+                     hover:bg-gray-50 -mx-2 px-2 rounded transition-colors"
+            >
+              <p class="text-sm text-gray-700 truncate flex-1">{{ product.name }}</p>
+              <span class="text-xs font-semibold ml-3 shrink-0"
+                [class.text-red-500]="product.stock_count === 0"
+                [class.text-amber-500]="product.stock_count > 0"
+              >
+                {{ product.stock_count === 0 ? 'Out' : product.stock_count + ' left' }}
+              </span>
+            </a>
+          }
+        </div>
+      }
+    </div>
+
+  </div>
+</div>

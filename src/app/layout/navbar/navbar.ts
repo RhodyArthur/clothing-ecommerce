@@ -3,11 +3,10 @@ import { Auth } from '../../core/services/auth';
 import { Cart } from '../../core/services/cart';
 import { Wishlist } from '../../core/services/wishlist';
 import { RouterLink } from '@angular/router';
-import { DividerModule } from 'primeng/divider';
 
 @Component({
   selector: 'app-navbar',
-  imports: [RouterLink, DividerModule],
+  imports: [RouterLink],
   templateUrl: './navbar.html',
 })
 export class Navbar implements OnInit {
@@ -20,6 +19,7 @@ export class Navbar implements OnInit {
 
   mobileMenuOpen = signal(false);
   scrolled = signal(false);
+  accountOpen = signal(false);
 
   navLinks = [
     { label: 'Women', path: '/products', query: { category: 'women' } },
@@ -34,6 +34,15 @@ export class Navbar implements OnInit {
 
   ngOnInit(): void {
     this.updateScrolled();
+  }
+
+  // Close dropdown when clicking outside
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.account-menu')) {
+      this.accountOpen.set(false);
+    }
   }
 
   private updateScrolled(): void {

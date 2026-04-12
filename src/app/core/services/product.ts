@@ -67,6 +67,28 @@ export class Product {
     }
   }
 
+  // Add this method to ProductService for admin use
+  async fetchAllProducts(): Promise<void> {
+    this._loading.set(true);
+    this._error.set(null);
+
+    try {
+      const { data, error } = await this.supabaseService.client
+        .from('products')
+        .select('*')           // ← no is_active filter
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      this._products.set(data as prod[]);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to load products';
+      this._error.set(message);
+      console.error('[ProductService] fetchAllProducts:', err);
+    } finally {
+      this._loading.set(false);
+    }
+  }
+
   async getProductById(id: string): Promise<prod | null> {
     try {
       const { data, error } = await this.supabaseService.client

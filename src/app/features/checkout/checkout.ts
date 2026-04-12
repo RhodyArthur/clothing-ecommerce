@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { Cart } from '../../core/services/cart';
 import { Order } from '../../core/services/order';
 import { Auth } from '../../core/services/auth';
@@ -11,6 +11,7 @@ import { FloatLabelModule } from 'primeng/floatlabel';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { environment } from '../../../environments/environment.development';
 
 @Component({
   selector: 'app-checkout',
@@ -18,7 +19,6 @@ import { MessageService } from 'primeng/api';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    RouterLink,
     InputTextModule,
     TextareaModule,
     FloatLabelModule,
@@ -98,7 +98,7 @@ export class Checkout implements OnInit {
           (i) =>
             `• ${i.name} (${i.color}, ${i.size}) x${i.quantity} — GHS ${(i.price * i.quantity).toFixed(2)}`,
         )
-        .join('%0A');
+        .join('\n');
 
       const message = [
         `🛍 *New Order — #${order.id.slice(0, 8).toUpperCase()}*`,
@@ -120,14 +120,13 @@ export class Checkout implements OnInit {
         `*Total: GHS ${this.grandTotal().toFixed(2)}*`,
       ]
         .filter(Boolean)
-        .join('%0A');
+        .join('\n');
 
       // 3 — Mark whatsapp_sent + open WhatsApp
       await this.orderService.markWhatsappSent(order.id);
 
-      // Replace with your business WhatsApp number (international format, no +)
-      const whatsappNumber = '233204530073';
-      const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${message}`;
+      const whatsappNumber = environment.whatsappNumber;
+      const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`; // ← encode the whole thing
 
       // 4 — Clear cart + redirect
       this.cartService.clearCart();

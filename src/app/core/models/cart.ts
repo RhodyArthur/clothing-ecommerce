@@ -9,8 +9,13 @@ export interface CartItem {
 }
 
 export interface SupabaseCartRow {
-    quantity: number;
-    size: string;
-    color: string;
-    products: { id: string; name: string; price: number; image_urls: string[] }[];
+  quantity:  number;
+  size:      string;
+  color:     string;
+  products: {          // ← object, NOT array
+    id:          string;
+    name:        string;
+    price:       number;
+    image_urls:  string[];
+  } | null;            // ← nullable if product was deleted
 }

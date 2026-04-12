@@ -1,0 +1,274 @@
+<p-toast position="top-right" />
+
+<div class="max-w-3xl">
+  <!-- Header -->
+  <div class="flex items-center gap-4 mb-6">
+    <a
+      routerLink="/admin/products"
+      class="flex items-center justify-center w-8 h-8 rounded-lg border border-gray-200 text-gray-400 no-underline hover:bg-gray-50"
+    >
+      <i class="pi pi-arrow-left" style="font-size: 0.75rem"></i>
+    </a>
+    <h1 class="text-xl font-bold text-gray-900">
+      {{ isEdit() ? 'Edit Product' : 'New Product' }}
+    </h1>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="flex flex-col gap-5">
+      <!-- ══════════════════════════════
+           BASIC INFO
+      ══════════════════════════════ -->
+      <div class="bg-white border border-gray-200 rounded-xl p-6">
+        <h2 class="text-sm font-semibold text-gray-900 mb-4">Basic Information</h2>
+
+        <div class="flex flex-col gap-4">
+          <!-- Name -->
+          <div class="flex flex-col gap-1.5">
+            <label for="product-name" class="text-xs font-medium text-gray-700">
+              Product Name <span class="text-red-500">*</span>
+            </label>
+            <input
+              id="product-name"
+              pInputText
+              formControlName="name"
+              placeholder="e.g. Essential Black T-Shirt"
+              class="w-full"
+              [class.ng-invalid]="isInvalid('name')"
+              [class.ng-dirty]="isInvalid('name')"
+            />
+            @if (isInvalid('name')) {
+              <span class="text-xs text-red-500">Product name is required</span>
+            }
+          </div>
+
+          <!-- Description -->
+          <div class="flex flex-col gap-1.5">
+            <label for="product-description" class="text-xs font-medium text-gray-700">
+              Description <span class="text-red-500">*</span>
+            </label>
+            <textarea
+              id="product-description"
+              pTextarea
+              formControlName="description"
+              placeholder="Describe the product..."
+              rows="3"
+              class="w-full resize-none"
+              [class.ng-invalid]="isInvalid('description')"
+              [class.ng-dirty]="isInvalid('description')"
+            ></textarea>
+          </div>
+
+          <!-- Price + Category + Stock -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label for="product-price" class="text-xs font-medium text-gray-700">
+                Price (GHS) <span class="text-red-500">*</span>
+              </label>
+              <p-inputnumber
+                id="product-price"
+                formControlName="price"
+                mode="decimal"
+                [minFractionDigits]="2"
+                [maxFractionDigits]="2"
+                [min]="0"
+                class="w-full"
+                inputStyleClass="w-full"
+              />
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <label for="product-category" class="text-xs font-medium text-gray-700">
+                Category <span class="text-red-500">*</span>
+              </label>
+              <p-select
+                id="product-category"
+                formControlName="category"
+                [options]="categories"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select category"
+                styleClass="w-full"
+                [class.ng-invalid]="isInvalid('category')"
+                [class.ng-dirty]="isInvalid('category')"
+              />
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <label for="product-stock" class="text-xs font-medium text-gray-700">
+                Stock Count <span class="text-red-500">*</span>
+              </label>
+              <p-inputnumber
+                id="product-stock"
+                formControlName="stock_count"
+                [min]="0"
+                styleClass="w-full"
+                inputStyleClass="w-full"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════
+           IMAGES
+      ══════════════════════════════ -->
+      <div class="bg-white border border-gray-200 rounded-xl p-6">
+        <h2 class="text-sm font-semibold text-gray-900 mb-4">Product Images</h2>
+
+        <!-- Upload area -->
+        <label
+          class="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-gray-400 hover:bg-gray-50 transition-all mb-4"
+        >
+          @if (uploading()) {
+            <i class="pi pi-spin pi-spinner text-gray-400 mb-2" style="font-size: 1.5rem"></i>
+            <span class="text-sm text-gray-400">Uploading...</span>
+          } @else {
+            <i class="pi pi-cloud-upload text-gray-300 mb-2" style="font-size: 1.75rem"></i>
+            <span class="text-sm font-medium text-gray-600"> Click to upload images </span>
+            <span class="text-xs text-gray-400 mt-1"> PNG, JPG up to 5MB each </span>
+          }
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            class="hidden"
+            (change)="onImageSelected($event)"
+            [disabled]="uploading()"
+          />
+        </label>
+
+        <!-- Image preview grid -->
+        @if (imageUrls().length > 0) {
+          <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
+            @for (url of imageUrls(); track url) {
+              <div class="relative group aspect-square rounded-lg overflow-hidden bg-gray-100">
+                <img
+                  [src]="url"
+                  [alt]="'Product image preview'"
+                  class="w-full h-full object-cover"
+                />
+                <button
+                  type="button"
+                  (click)="removeImage(url)"
+                  class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 border-none cursor-pointer transition-opacity"
+                >
+                  <i class="pi pi-trash text-white" style="font-size: 0.875rem"></i>
+                </button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- ══════════════════════════════
+           SIZES & COLORS
+      ══════════════════════════════ -->
+      <div class="bg-white border border-gray-200 rounded-xl p-6">
+        <h2 class="text-sm font-semibold text-gray-900 mb-4">Variants</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Sizes -->
+          <div>
+            <label for="size-input" class="text-xs font-medium text-gray-700 mb-2 block"
+              >Sizes</label
+            >
+            <div class="flex gap-2 mb-3">
+              <p-select
+                id="size-input"
+                [(ngModel)]="sizeInput"
+                [ngModelOptions]="{ standalone: true }"
+                [options]="sizeOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select size"
+                styleClass="flex-1"
+              />
+              <button
+                type="button"
+                (click)="addSize()"
+                [disabled]="!sizeInput"
+                class="px-3 py-2 bg-gray-900 text-white text-xs rounded-lg border-none cursor-pointer hover:opacity-85"
+              >
+                Add
+              </button>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              @for (size of form.value.sizes ?? []; track size) {
+                <span
+                  class="inline-flex items-center gap-1.5 px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full"
+                >
+                  {{ size }}
+                  <button
+                    type="button"
+                    (click)="removeSize(size)"
+                    class="w-3.5 h-3.5 flex items-center justify-center rounded-full bg-gray-300 border-none cursor-pointer hover:bg-gray-400 text-white transition-colors"
+                  >
+                    <i class="pi pi-times" style="font-size: 8px"></i>
+                  </button>
+                </span>
+              }
+            </div>
+          </div>
+
+          <!-- Colors -->
+          <div>
+            <label for="color-input" class="text-xs font-medium text-gray-700 mb-2 block"
+              >Colors</label
+            >
+            <div class="flex gap-2 mb-3">
+              <input
+                id="color-input"
+                pInputText
+                [(ngModel)]="colorInput"
+                [ngModelOptions]="{ standalone: true }"
+                placeholder="e.g. Black"
+                class="flex-1"
+                (keydown.enter)="$event.preventDefault(); addColor()"
+              />
+              <button
+                type="button"
+                (click)="addColor()"
+                class="px-3 py-2 bg-gray-900 text-white text-xs rounded-lg border-none cursor-pointer hover:opacity-85"
+              >
+                Add
+              </button>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              @for (color of form.value.colors ?? []; track color) {
+                <span
+                  class="inline-flex items-center gap-1.5 px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full"
+                >
+                  {{ color }}
+                  <button
+                    type="button"
+                    (click)="removeColor(color)"
+                    class="w-3.5 h-3.5 flex items-center justify-center rounded-full bg-gray-300 border-none cursor-pointer hover:bg-gray-400 text-white transition-colors"
+                  >
+                    <i class="pi pi-times" style="font-size: 8px"></i>
+                  </button>
+                </span>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <div class="flex items-center justify-end gap-3">
+        <a
+          routerLink="/admin/products"
+          class="px-5 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-600 no-underline hover:bg-gray-50 transition-colors"
+        >
+          Cancel
+        </a>
+        <p-button
+          type="submit"
+          [label]="isEdit() ? 'Save Changes' : 'Create Product'"
+          [loading]="submitting()"
+          styleClass="!bg-gray-900 !border-gray-900 !text-white hover:!opacity-85"
+        />
+      </div>
+    </div>
+  </form>
+</div>

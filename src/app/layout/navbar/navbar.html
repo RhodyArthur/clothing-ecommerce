@@ -65,13 +65,49 @@
           <i class="pi pi-search text-[18px]"></i>
         </a>
 
-        <a
-          [routerLink]="auth.currentUser() ? '/orders' : '/auth/login'"
-          class="flex items-center justify-center w-9 h-9 rounded-md text-gray-900 hover:bg-gray-100 transition-colors"
-          aria-label="Account"
-        >
-          <i class="pi pi-user text-[18px]"></i>
-        </a>
+        <!-- Account icon — shows dropdown if logged in -->
+        @if (auth.currentUser()) {
+          <div class="relative account-menu" #accountMenu>
+            <button
+              (click)="accountOpen.set(!accountOpen())"
+              class="flex items-center justify-center w-9 h-9 rounded-md text-gray-900 hover:bg-gray-100 transition-colors"
+              aria-label="Account"
+            >
+              <i class="pi pi-user text-[18px]"></i>
+            </button>
+
+            @if (accountOpen()) {
+              <div
+                class="absolute right-0 top-12 bg-white border border-gray-200 rounded-lg shadow-lg py-1 w-44 z-50"
+              >
+                <a
+                  routerLink="/orders"
+                  class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 no-underline hover:bg-gray-50 transition-colors"
+                  (click)="accountOpen.set(false)"
+                >
+                  <i class="pi pi-list-check" style="font-size: 13px"></i>
+                  My Orders
+                </a>
+                <hr class="border-gray-100 my-1" />
+                <button
+                  (click)="signOut(); accountOpen.set(false)"
+                  class="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-500 bg-transparent border-none cursor-pointer hover:bg-gray-50 transition-colors text-left"
+                >
+                  <i class="pi pi-sign-out" style="font-size: 13px"></i>
+                  Sign Out
+                </button>
+              </div>
+            }
+          </div>
+        } @else {
+          <a
+            routerLink="/auth/login"
+            class="flex items-center justify-center w-9 h-9 rounded-md text-gray-900 hover:bg-gray-100 transition-colors"
+            aria-label="Sign in"
+          >
+            <i class="pi pi-user text-[18px]"></i>
+          </a>
+        }
 
         <a
           routerLink="/wishlist"
@@ -110,14 +146,49 @@
           <i class="pi pi-search text-[20px]"></i>
         </a>
 
-        <!-- Account -->
-        <a
-          [routerLink]="auth.currentUser() ? '/orders' : '/auth/login'"
-          class="flex items-center justify-center w-10 h-10 rounded-xl text-gray-900 hover:bg-gray-100 transition-colors"
-          aria-label="Account"
-        >
-          <i class="pi pi-user text-[20px]"></i>
-        </a>
+        <!-- Account (desktop) — shows dropdown if logged in -->
+        @if (auth.currentUser()) {
+          <div class="relative account-menu">
+            <button
+              (click)="accountOpen.set(!accountOpen())"
+              class="flex items-center justify-center w-10 h-10 rounded-xl text-gray-900 hover:bg-gray-100 transition-colors"
+              aria-label="Account"
+            >
+              <i class="pi pi-user text-[20px]"></i>
+            </button>
+
+            @if (accountOpen()) {
+              <div
+                class="absolute right-0 top-12 bg-white border border-gray-200 rounded-lg shadow-lg py-1 w-44 z-50"
+              >
+                <a
+                  routerLink="/orders"
+                  class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 no-underline hover:bg-gray-50 transition-colors"
+                  (click)="accountOpen.set(false)"
+                >
+                  <i class="pi pi-list-check" style="font-size: 13px"></i>
+                  My Orders
+                </a>
+                <hr class="border-gray-100 my-1" />
+                <button
+                  (click)="signOut(); accountOpen.set(false)"
+                  class="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-500 bg-transparent border-none cursor-pointer hover:bg-gray-50 transition-colors text-left"
+                >
+                  <i class="pi pi-sign-out" style="font-size: 13px"></i>
+                  Sign Out
+                </button>
+              </div>
+            }
+          </div>
+        } @else {
+          <a
+            routerLink="/auth/login"
+            class="flex items-center justify-center w-10 h-10 rounded-xl text-gray-900 hover:bg-gray-100 transition-colors"
+            aria-label="Sign in"
+          >
+            <i class="pi pi-user text-[20px]"></i>
+          </a>
+        }
 
         <!-- Wishlist -->
         <a
@@ -161,28 +232,6 @@
         >
           {{ link.label }}
         </a>
-      }
-      <p-divider />
-      @if (auth.currentUser()) {
-        <a
-          routerLink="/orders"
-          class="px-8 py-3 text-[0.95rem] text-gray-900 no-underline hover:bg-gray-50"
-          (click)="mobileMenuOpen.set(false)"
-          >My Orders</a
-        >
-        <button
-          class="px-8 py-3 text-left text-[0.95rem] text-gray-400 bg-transparent border-none cursor-pointer hover:bg-gray-50"
-          (click)="signOut()"
-        >
-          Sign Out
-        </button>
-      } @else {
-        <a
-          routerLink="/auth/login"
-          class="px-8 py-3 text-[0.95rem] text-gray-900 no-underline hover:bg-gray-50"
-          (click)="mobileMenuOpen.set(false)"
-          >Sign In</a
-        >
       }
     </nav>
   }

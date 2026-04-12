@@ -1,48 +1,112 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { User } from '@supabase/supabase-js';
 import { Supabase } from './supabase';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
 })
 export class Auth {
+  private supabase = inject(Supabase);
+  private router = inject(Router);
+
   currentUser = signal<User | null>(null);
-  private readonly supabaseService = inject(Supabase);
+  loading = signal(true);
+
+  // Resolves once the initial session check is complete
+  private sessionReady: Promise<void>;
+  private resolveReady!: () => void;
 
   constructor() {
-    this.initializeAuth();
-    this.setupAuthStateListener();
-  }
+    // Create the promise before the async call
+    this.sessionReady = new Promise(resolve => {
+      this.resolveReady = resolve;
+    });
 
-  private initializeAuth(): void {
-    this.supabaseService.client.auth.getUser().then(({data}) => {
-      this.currentUser.set(data.user);
+    // Restore session on app load
+    this.supabase.client.auth.getSession().then(({ data }) => {
+      this.currentUser.set(data.session?.user ?? null);
+      this.loading.set(false);
+      this.resolveReady(); // ← signal that session is ready
+    });
+
+    // Keep signal in sync with Supabase auth state
+    this.supabase.client.auth.onAuthStateChange((event, session) => {
+      this.currentUser.set(session?.user ?? null);
+      if (event === 'SIGNED_OUT') {
+        this.router.navigate(['/']);
+      }
     });
   }
 
-  private setupAuthStateListener(): void {
-    this.supabaseService.client.auth.onAuthStateChange((_, session) => {
-        this.currentUser.set(session?.user ?? null);
+  // ── Sign up ────────────────────────────────────────
+  async signUp(email: string, password: string, fullName: string, phone: string) {
+    const { data, error } = await this.supabase.client.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: fullName,
+          phone_number: phone   // ← store in metadata since Supabase phone
+                                //   field requires OTP verification
+        },
+        emailRedirectTo: `${window.location.origin}/auth/login`
+      }
     });
+    if (error) throw error;
+    return data;
   }
 
-  signUp(email: string, password: string, fullName: string) {
-    return this.supabaseService.client.auth.signUp({
-      email, password,
-      options: { data: { full_name: fullName } }
+  // ── Sign in ────────────────────────────────────────
+  async signIn(email: string, password: string) {
+    const { data, error } = await this.supabase.client.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    return data;
+  }
+
+  // ── Google OAuth ───────────────────────────────────
+  async signInWithGoogle() {
+    const { error } = await this.supabase.client.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
     });
+    if (error) throw error;
   }
 
-  signIn(email: string, password: string) {
-    return this.supabaseService.client.auth.signInWithPassword({ email, password });
+  // ── Sign out ───────────────────────────────────────
+  async signOut() {
+    const { error } = await this.supabase.client.auth.signOut();
+    if (error) throw error;
   }
 
-  signInWithGoogle() {
-    return this.supabaseService.client.auth.signInWithOAuth({ provider: 'google' });
+  // ── Forgot password ────────────────────────────────
+  async sendPasswordResetEmail(email: string) {
+    const { error } = await this.supabase.client.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/reset-password`,
+    });
+    if (error) throw error;
   }
 
-  signOut() {
-    return this.supabaseService.client.auth.signOut();
+  // ── Reset password ─────────────────────────────────
+  async updatePassword(newPassword: string) {
+    const { error } = await this.supabase.client.auth.updateUser({
+      password: newPassword,
+    });
+    if (error) throw error;
   }
 
+  // Guards call this to wait for session before checking auth state
+  async waitForSession(): Promise<void> {
+    return this.sessionReady;
+  }
+
+  isLoggedIn(): boolean {
+    return !!this.currentUser();
+  }
+
+  isAdmin(): boolean {
+    return this.currentUser()?.user_metadata?.['is_admin'] === true;
+  }
 }
