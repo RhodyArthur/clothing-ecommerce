@@ -4,12 +4,13 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "ng build --configuration production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "eslint . --ext .ts,.html",
     "lint:fix": "eslint . --ext .ts,.html --fix",
-    "format": "prettier --write \"src/**/*.{ts,html,css,scss}\""
+    "format": "prettier --write \"src/**/*.{ts,html,css,scss}\"",
+    "vercel-build": "node create-env.js && ng build --configuration production"
   },
   "private": true,
   "packageManager": "npm@10.9.2",
