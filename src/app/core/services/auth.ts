@@ -13,17 +13,26 @@ export class Auth {
   currentUser = signal<User | null>(null);
   loading = signal(true);
 
+  // Resolves once the initial session check is complete
+  private sessionReady: Promise<void>;
+  private resolveReady!: () => void;
+
   constructor() {
+    // Create the promise before the async call
+    this.sessionReady = new Promise(resolve => {
+      this.resolveReady = resolve;
+    });
+
     // Restore session on app load
     this.supabase.client.auth.getSession().then(({ data }) => {
       this.currentUser.set(data.session?.user ?? null);
       this.loading.set(false);
+      this.resolveReady(); // ← signal that session is ready
     });
 
     // Keep signal in sync with Supabase auth state
     this.supabase.client.auth.onAuthStateChange((event, session) => {
       this.currentUser.set(session?.user ?? null);
-
       if (event === 'SIGNED_OUT') {
         this.router.navigate(['/']);
       }
@@ -36,9 +45,13 @@ export class Auth {
       email,
       password,
       options: {
-        data: { full_name: fullName, phone: phone },
-        emailRedirectTo: `${window.location.origin}/auth/login`,
-      },
+        data: {
+          full_name: fullName,
+          phone_number: phone   // ← store in metadata since Supabase phone
+                                //   field requires OTP verification
+        },
+        emailRedirectTo: `${window.location.origin}/auth/login`
+      }
     });
     if (error) throw error;
     return data;
@@ -84,7 +97,16 @@ export class Auth {
     if (error) throw error;
   }
 
+  // Guards call this to wait for session before checking auth state
+  async waitForSession(): Promise<void> {
+    return this.sessionReady;
+  }
+
   isLoggedIn(): boolean {
     return !!this.currentUser();
+  }
+
+  isAdmin(): boolean {
+    return this.currentUser()?.user_metadata?.['is_admin'] === true;
   }
 }
