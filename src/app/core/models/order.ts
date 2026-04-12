@@ -23,6 +23,7 @@ export interface Order {
   status: OrderStatus;
   delivery_address: string;
   whatsapp_sent: boolean;
+  confirmed_by_customer:   boolean;
   created_at: string;
 }
 
