@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Order as OrderService } from '../../../core/services/order';
@@ -8,6 +8,8 @@ import { DividerModule } from 'primeng/divider';
 import { TimelineModule } from 'primeng/timeline';
 import { Order } from '../../../core/models/order';
 import { environment } from '../../../../environments/environment.development';
+import { RealtimeChannel } from '@supabase/supabase-js';
+import { Supabase } from '../../../core/services/supabase';
 
 @Component({
   selector: 'app-order-detail',
@@ -15,12 +17,15 @@ import { environment } from '../../../../environments/environment.development';
     ButtonModule, TagModule, DividerModule, TimelineModule],
   templateUrl: './order-detail.html',
 })
-export class OrderDetail implements OnInit{
+export class OrderDetail implements OnInit, OnDestroy {
   private route        = inject(ActivatedRoute);
   private orderService = inject(OrderService);
+  private supabase = inject(Supabase);
+  private channel: RealtimeChannel | null = null;
 
   order   = signal<Order | null>(null);
   loading = signal(true);
+  confirming = signal(false);
 
   // Order status timeline steps
   timelineSteps = [
@@ -67,6 +72,30 @@ export class OrderDetail implements OnInit{
     const found = this.orderService.orders().find(o => o.id === id) ?? null;
     this.order.set(found);
     this.loading.set(false);
+
+    // Subscribe to status changes on this specific order
+    const orderId = this.route.snapshot.paramMap.get('id');
+    if (orderId) {
+      this.channel = this.supabase.client
+        .channel(`order-${orderId}`)
+        .on(
+          'postgres_changes',
+          {
+            event:  'UPDATE',
+            schema: 'public',
+            table:  'orders',
+            filter: `id=eq.${orderId}`
+          },
+          (payload) => {
+            // Patch just the status on the existing order signal
+            const updated = payload.new as Order;
+            this.order.update(current =>
+              current ? { ...current, status: updated.status } : current
+            );
+          }
+        )
+        .subscribe();
+    }
   }
 
   getSeverity(status: string): 'success' | 'secondary' | 'info' | 'warn' | 'danger' | 'contrast' | null | undefined {
@@ -109,5 +138,25 @@ export class OrderDetail implements OnInit{
       `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`,
       '_blank'
     );
+  }
+
+  canConfirmDelivery = computed(() =>
+    this.order()?.status === 'shipped' &&
+    !this.order()?.confirmed_by_customer
+  );
+
+  async confirmDelivery(): Promise<void> {
+    this.confirming.set(true);
+    const success = await this.orderService.confirmDelivery(this.order()!.id);
+    if (!success) {
+      // show error — keep existing toast pattern
+    }
+    this.confirming.set(false);
+  }
+
+  ngOnDestroy(): void {
+    if (this.channel) {
+      this.supabase.client.removeChannel(this.channel);
+    }
   }
 }

@@ -208,4 +208,39 @@
     </div>
 
   }
+  <!-- Customer delivery confirmation — shown when shipped -->
+  @if (canConfirmDelivery()) {
+    <div class="border border-green-200 bg-green-50 rounded-xl p-4 mb-5">
+      <div class="flex items-start gap-3">
+        <i class="pi pi-truck text-green-600 mt-0.5" style="font-size:1rem;"></i>
+        <div class="flex-1">
+          <p class="text-sm font-semibold text-green-800 mb-1">
+            Your order is on the way
+          </p>
+          <p class="text-xs text-green-600 mb-3">
+            Once you receive your items, please confirm delivery below.
+          </p>
+          <p-button
+            label="I've Received My Order"
+            icon="pi pi-check"
+            [loading]="confirming()"
+            styleClass="!bg-green-700 !border-green-700 !text-white
+                        hover:!opacity-85 !text-sm"
+            (onClick)="confirmDelivery()"
+          />
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Already confirmed -->
+  @if (order()?.confirmed_by_customer) {
+    <div class="border border-gray-100 bg-gray-50 rounded-xl p-4 mb-5
+                flex items-center gap-3">
+      <i class="pi pi-check-circle text-green-500" style="font-size:1rem;"></i>
+      <p class="text-sm text-gray-600">
+        You confirmed receipt of this order.
+      </p>
+    </div>
+  }
 </div>
