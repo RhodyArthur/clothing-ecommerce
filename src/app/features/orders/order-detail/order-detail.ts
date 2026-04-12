@@ -7,9 +7,9 @@ import { TagModule } from 'primeng/tag';
 import { DividerModule } from 'primeng/divider';
 import { TimelineModule } from 'primeng/timeline';
 import { Order } from '../../../core/models/order';
-import { environment } from '../../../../environments/environment.development';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { Supabase } from '../../../core/services/supabase';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-order-detail',
