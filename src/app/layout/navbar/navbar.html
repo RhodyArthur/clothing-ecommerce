@@ -19,10 +19,18 @@
         }
       </button>
 
+      <!-- Mobile logo (left, next to hamburger) -->
+      <a
+        routerLink="/"
+        class="md:hidden inline-block text-[1.05rem] font-bold tracking-widest text-gray-900 no-underline"
+      >
+        TheFooseGuy
+      </a>
+
       <!-- Desktop logo (left) -->
       <a
         routerLink="/"
-        class="hidden md:inline-block text-[1rem] font-bold tracking-widest text-gray-900 no-underline"
+        class="hidden md:inline-block text-base font-bold tracking-widest text-gray-900 no-underline"
       >
         TheFooseGuy
       </a>
@@ -30,13 +38,7 @@
 
     <!-- CENTER: mobile logo + centered desktop nav links -->
     <div class="flex-1 flex justify-center items-center">
-      <!-- Mobile logo (center) -->
-      <a
-        routerLink="/"
-        class="md:hidden text-[1.05rem] font-bold tracking-widest text-gray-900 no-underline"
-      >
-        TheFooseGuy
-      </a>
+      <!-- Mobile logo removed from center (moved next to hamburger) -->
 
       <!-- Desktop categories (centered) -->
       <nav class="hidden md:flex items-center gap-10 justify-center">
@@ -55,7 +57,7 @@
 
     <!-- RIGHT: icons (mobile + desktop handling) -->
     <div class="flex items-center gap-2">
-      <!-- Mobile icons: visible on small screens -->
+      <!-- Mobile icons: keep only search visible; other actions are inside PrimeNG drawer -->
       <div class="flex items-center gap-2 md:hidden">
         <a
           routerLink="/products"
@@ -64,76 +66,7 @@
         >
           <i class="pi pi-search text-[18px]"></i>
         </a>
-
-        <!-- Account icon — shows dropdown if logged in -->
-        @if (auth.currentUser()) {
-          <div class="relative account-menu" #accountMenu>
-            <button
-              (click)="accountOpen.set(!accountOpen())"
-              class="flex items-center justify-center w-9 h-9 rounded-md text-gray-900 hover:bg-gray-100 transition-colors"
-              aria-label="Account"
-            >
-              <i class="pi pi-user text-[18px]"></i>
-            </button>
-
-            @if (accountOpen()) {
-              <div
-                class="absolute right-0 top-12 bg-white border border-gray-200 rounded-lg shadow-lg py-1 w-44 z-50"
-              >
-                <a
-                  routerLink="/orders"
-                  class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 no-underline hover:bg-gray-50 transition-colors"
-                  (click)="accountOpen.set(false)"
-                >
-                  <i class="pi pi-list-check" style="font-size: 13px"></i>
-                  My Orders
-                </a>
-                <hr class="border-gray-100 my-1" />
-                <button
-                  (click)="signOut(); accountOpen.set(false)"
-                  class="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-500 bg-transparent border-none cursor-pointer hover:bg-gray-50 transition-colors text-left"
-                >
-                  <i class="pi pi-sign-out" style="font-size: 13px"></i>
-                  Sign Out
-                </button>
-              </div>
-            }
-          </div>
-        } @else {
-          <a
-            routerLink="/auth/login"
-            class="flex items-center justify-center w-9 h-9 rounded-md text-gray-900 hover:bg-gray-100 transition-colors"
-            aria-label="Sign in"
-          >
-            <i class="pi pi-user text-[18px]"></i>
-          </a>
-        }
-
-        <a
-          routerLink="/wishlist"
-          class="relative flex items-center justify-center w-9 h-9 rounded-md text-gray-900 hover:bg-gray-100 transition-colors"
-          aria-label="Wishlist"
-        >
-          <i class="pi pi-heart text-[18px]"></i>
-          @if (wishlistCount() > 0) {
-            <span
-              class="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 bg-gray-900 text-white text-[10px] font-semibold rounded-full flex items-center justify-center"
-            >
-              {{ wishlistCount() }}
-            </span>
-          }
-        </a>
-
-        <a
-          routerLink="/cart"
-          class="flex items-center justify-center w-9 h-9 rounded-md text-gray-900 hover:bg-gray-100 transition-colors"
-          aria-label="Cart"
-        >
-          <i class="pi pi-shopping-cart text-[18px]"></i>
-        </a>
       </div>
-
-      <!-- (nav links moved next to logo for desktop) -->
 
       <!-- Desktop icons -->
       <div class="hidden md:flex items-center gap-2">
@@ -218,14 +151,22 @@
     </div>
   </div>
 
-  <!-- Mobile menu -->
-  @if (mobileMenuOpen()) {
-    <nav
-      class="md:hidden absolute inset-x-0 top-full flex flex-col border-t border-gray-200 bg-white py-2 shadow-md z-50"
-    >
+  <!-- PrimeNG Drawer for mobile menu -->
+  <p-drawer
+    position="left"
+    header="Menu"
+    [visible]="mobileMenuOpen()"
+    (onHide)="mobileMenuOpen.set(false)"
+    [modal]="true"
+    [closable]="true"
+    appendTo="body"
+    class="md:hidden"
+  >
+    <!-- Navigation categories -->
+    <div>
       @for (link of navLinks; track link.label) {
         <a
-          class="px-8 py-3 text-[0.95rem] text-gray-900 no-underline hover:bg-gray-50 transition-colors"
+          class="block px-4 py-3 text-[0.95rem] text-gray-900 no-underline hover:bg-gray-50 transition-colors"
           [routerLink]="link.path"
           [queryParams]="link.query"
           (click)="mobileMenuOpen.set(false)"
@@ -233,6 +174,86 @@
           {{ link.label }}
         </a>
       }
-    </nav>
-  }
+    </div>
+
+    <p-divider />
+
+    <div class="mt-4">
+      <!-- Account / Sign In -->
+      <div class="px-4 py-3">
+        @if (auth.currentUser()) {
+          <details class="group">
+            <summary
+              class="flex items-center justify-between cursor-pointer text-sm text-gray-900 list-none"
+            >
+              <div class="flex items-center gap-3">
+                <i class="pi pi-user" style="font-size: 16px"></i>
+                Account
+              </div>
+              <i class="pi pi-chevron-down text-sm transition-transform group-open:rotate-180"></i>
+            </summary>
+
+            <div class="mt-2 flex flex-col gap-3 pl-4">
+              <a
+                routerLink="/orders"
+                class="flex items-center gap-3 text-sm text-gray-900 no-underline"
+                (click)="mobileMenuOpen.set(false)"
+              >
+                <i class="pi pi-list-check" style="font-size: 16px"></i>
+                My Orders
+              </a>
+
+              <button
+                (click)="signOut(); mobileMenuOpen.set(false)"
+                class="flex items-center gap-3 text-sm text-red-500 bg-transparent border-none cursor-pointer text-left"
+              >
+                <i class="pi pi-sign-out" style="font-size: 16px"></i>
+                Sign Out
+              </button>
+            </div>
+          </details>
+        } @else {
+          <a
+            routerLink="/auth/login"
+            class="flex items-center gap-3 text-sm text-gray-900 no-underline"
+            (click)="mobileMenuOpen.set(false)"
+          >
+            <i class="pi pi-user" style="font-size: 16px"></i>
+            Sign In
+          </a>
+        }
+      </div>
+
+      <!-- Wishlist -->
+      <div class="px-4 py-3">
+        <a
+          routerLink="/wishlist"
+          class="flex items-center gap-3 text-sm text-gray-900 no-underline"
+          (click)="mobileMenuOpen.set(false)"
+        >
+          <i class="pi pi-heart" style="font-size: 16px"></i>
+          Wishlist
+          @if (wishlistCount() > 0) {
+            <span
+              class="ml-2 inline-flex items-center justify-center w-5 h-5 bg-gray-900 text-white text-[10px] font-semibold rounded-full"
+            >
+              {{ wishlistCount() }}
+            </span>
+          }
+        </a>
+      </div>
+
+      <!-- Cart -->
+      <div class="px-4 py-3">
+        <a
+          routerLink="/cart"
+          class="flex items-center gap-3 text-sm text-gray-900 no-underline"
+          (click)="mobileMenuOpen.set(false)"
+        >
+          <i class="pi pi-shopping-cart" style="font-size: 16px"></i>
+          Cart
+        </a>
+      </div>
+    </div>
+  </p-drawer>
 </header>
