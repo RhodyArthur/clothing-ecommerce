@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule, NgTemplateOutlet } from '@angular/common';
 import { SelectModule } from 'primeng/select';
@@ -8,8 +8,9 @@ import { SliderModule } from 'primeng/slider';
 import { DrawerModule } from 'primeng/drawer';
 import { Product } from '../../../core/services/product';
 import { FormsModule } from '@angular/forms';
-import { Search } from "../../../shared/components/search/search";
-import { ProductCard } from "../../../shared/components/product-card/product-card";
+import { Search } from '../../../shared/components/search/search';
+import { ProductCard } from '../../../shared/components/product-card/product-card';
+import { MinPipe } from '../../../shared/pipes/min-pipe';
 
 type SortOption = 'featured' | 'price-asc' | 'price-desc' | 'newest';
 
@@ -25,8 +26,9 @@ type SortOption = 'featured' | 'price-asc' | 'price-desc' | 'newest';
     SkeletonModule,
     SliderModule,
     Search,
-    ProductCard
-],
+    ProductCard,
+    MinPipe,
+  ],
   templateUrl: './product-list.html',
   styleUrls: ['./product-list.css'],
 })
@@ -42,6 +44,8 @@ export class ProductList implements OnInit, OnDestroy {
   maxPrice = signal<number>(300);
   sortBy = signal<SortOption>('featured');
   filterDrawerOpen = signal(false);
+  currentPage = signal(1);
+  pageSize = signal(12);
 
   openFilters(): void {
     this.filterDrawerOpen.set(true);
@@ -98,6 +102,19 @@ export class ProductList implements OnInit, OnDestroy {
     }
   });
 
+  // Reset page when filters change
+  resetPage = effect(() => {
+    // Touch all filter signals to create dependency
+    this.selectedCategories();
+    this.selectedSizes();
+    this.selectedColors();
+    this.minPrice();
+    this.maxPrice();
+    this.sortBy();
+    // Reset page
+    this.currentPage.set(1);
+  });
+
   ngOnInit(): void {
     // Pre-select category from query param (e.g. from navbar links)
     this.route.queryParams.subscribe((params) => {
@@ -131,6 +148,26 @@ export class ProductList implements OnInit, OnDestroy {
     this.selectedColors.update((current) =>
       current.includes(color) ? current.filter((c) => c !== color) : [...current, color],
     );
+  }
+
+  paginatedProducts = computed(() => {
+    const start = (this.currentPage() - 1) * this.pageSize();
+    const end = start + this.pageSize();
+    return this.filteredProducts().slice(start, end);
+  });
+
+  totalPages = computed(() => Math.ceil(this.filteredProducts().length / this.pageSize()));
+
+  pageNumbers = computed(() => Array.from({ length: this.totalPages() }, (_, i) => i + 1));
+
+  resultsEnd = computed(() =>
+    Math.min(this.currentPage() * this.pageSize(), this.filteredProducts().length),
+  );
+
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages()) return;
+    this.currentPage.set(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   clearFilters(): void {

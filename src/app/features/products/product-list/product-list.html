@@ -13,6 +13,11 @@
     </p>
   </div>
 
+  <!-- hidden usage to ensure `min` pipe is recognized by the compiler -->
+  <span style="display: none">{{
+    [currentPage() * pageSize(), filteredProducts().length] | min
+  }}</span>
+
   <div class="mb-4 md:hidden">
     <app-search></app-search>
   </div>
@@ -21,17 +26,12 @@
        MOBILE: Filter button + sort row
   ══════════════════════════════════════════ -->
   <div class="flex items-center gap-3 mb-6 md:hidden">
-    <div class="flex items-center gap-1.5">
-      <p-button
-        label="Filters"
-        icon="pi pi-sliders-h"
-        class="p-button-outlined"
-        (onClick)="openFilters()"
-      ></p-button>
-      @if (hasActiveFilters()) {
-        <span class="w-2 h-2 bg-[#1a1a1a] rounded-full inline-block ml-2"></span>
-      }
-    </div>
+    <p-button
+      label="Filters"
+      icon="pi pi-sliders-h"
+      class="p-button-outlined"
+      (onClick)="openFilters()"
+    ></p-button>
 
     <p-select
       [options]="sortOptions"
@@ -115,11 +115,73 @@
 
         <!-- Products -->
       } @else {
+        <!-- Products grid — paginated -->
         <div class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
-          @for (product of filteredProducts(); track product.id) {
+          @for (product of paginatedProducts(); track product.id) {
             <app-product-card [product]="product" />
           }
         </div>
+
+        <!-- Pagination -->
+        @if (totalPages() > 1) {
+          <div class="flex items-center justify-center gap-1 mt-10">
+            <!-- Prev -->
+            <button
+              (click)="goToPage(currentPage() - 1)"
+              [disabled]="currentPage() === 1"
+              class="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 cursor-pointer hover:bg-gray-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <i class="pi pi-chevron-left" style="font-size: 0.7rem"></i>
+            </button>
+
+            <!-- Page numbers -->
+            @for (page of pageNumbers(); track page) {
+              <!-- Show first, last, current, and neighbours — collapse others to ... -->
+              @if (
+                page === 1 ||
+                page === totalPages() ||
+                page === currentPage() ||
+                page === currentPage() - 1 ||
+                page === currentPage() + 1
+              ) {
+                <button
+                  (click)="goToPage(page)"
+                  class="w-9 h-9 flex items-center justify-center rounded-lg border text-sm cursor-pointer transition-all"
+                  [class.bg-gray-900]="page === currentPage()"
+                  [class.text-white]="page === currentPage()"
+                  [class.border-gray-900]="page === currentPage()"
+                  [class.bg-white]="page !== currentPage()"
+                  [class.text-gray-700]="page !== currentPage()"
+                  [class.border-gray-200]="page !== currentPage()"
+                  [class.hover:bg-gray-50]="page !== currentPage()"
+                >
+                  {{ page }}
+                </button>
+              } @else if (page === currentPage() - 2 || page === currentPage() + 2) {
+                <span class="w-9 h-9 flex items-center justify-center text-gray-400 text-sm">
+                  …
+                </span>
+              }
+            }
+
+            <!-- Next -->
+            <button
+              (click)="goToPage(currentPage() + 1)"
+              [disabled]="currentPage() === totalPages()"
+              class="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 cursor-pointer hover:bg-gray-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <i class="pi pi-chevron-right" style="font-size: 0.7rem"></i>
+            </button>
+          </div>
+
+          <!-- Results info -->
+          <p class="text-center text-xs text-gray-400 mt-3">
+            Showing {{ (currentPage() - 1) * pageSize() + 1 }}–{{
+              [currentPage() * pageSize(), filteredProducts().length] | min
+            }}
+            of {{ filteredProducts().length }} products
+          </p>
+        }
       }
     </div>
   </div>
