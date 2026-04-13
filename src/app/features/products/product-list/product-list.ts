@@ -11,7 +11,7 @@ import { FormsModule } from '@angular/forms';
 import { Search } from "../../../shared/components/search/search";
 import { ProductCard } from "../../../shared/components/product-card/product-card";
 
-type SortOption = 'featured' | 'price-asc' | 'price-desc' | 'newest' | 'highest-rated';
+type SortOption = 'featured' | 'price-asc' | 'price-desc' | 'newest';
 
 @Component({
   selector: 'app-product-list',
@@ -60,7 +60,6 @@ export class ProductList implements OnInit, OnDestroy {
     { label: 'Price: Low → High', value: 'price-asc' },
     { label: 'Price: High → Low', value: 'price-desc' },
     { label: 'Newest', value: 'newest' },
-    { label: 'Highest Rated', value: 'highest-rated' },
   ];
 
   // --- Derived: filtered + sorted products ---
