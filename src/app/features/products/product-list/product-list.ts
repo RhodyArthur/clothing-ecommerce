@@ -9,6 +9,7 @@ import { DrawerModule } from 'primeng/drawer';
 import { Product } from '../../../core/services/product';
 import { Wishlist } from '../../../core/services/wishlist';
 import { FormsModule } from '@angular/forms';
+import { Search } from "../../../shared/components/search/search";
 
 type SortOption = 'featured' | 'price-asc' | 'price-desc' | 'newest' | 'highest-rated';
 
@@ -24,7 +25,8 @@ type SortOption = 'featured' | 'price-asc' | 'price-desc' | 'newest' | 'highest-
     ButtonModule,
     SkeletonModule,
     SliderModule,
-  ],
+    Search
+],
   templateUrl: './product-list.html',
   styleUrls: ['./product-list.css'],
 })

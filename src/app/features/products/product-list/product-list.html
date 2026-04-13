@@ -13,6 +13,10 @@
     </p>
   </div>
 
+  <div class="mb-4 md:hidden">
+    <app-search></app-search>
+  </div>
+
   <!-- ══════════════════════════════════════════
        MOBILE: Filter button + sort row
   ══════════════════════════════════════════ -->
@@ -79,6 +83,9 @@
          PRODUCT GRID
     ══════════════════════════════════════════ -->
     <div class="flex-1 min-w-0">
+      <div class="hidden max-w-1/2 md:block mb-6">
+        <app-search></app-search>
+      </div>
       <!-- Loading skeletons -->
       @if (productService.loading()) {
         <div class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">

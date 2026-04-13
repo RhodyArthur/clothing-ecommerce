@@ -1,0 +1,56 @@
+<p-autocomplete
+  [(ngModel)]="selectedProduct"
+  [suggestions]="search.results()"
+  (completeMethod)="onSearch($event)"
+  (onSelect)="onSelect($event)"
+  (keydown)="onKeydown($event)"
+  field="name"
+  placeholder="Search products..."
+  [showClear]="true"
+  appendTo="body"
+  class="w-full"
+  inputStyleClass="w-full"
+>
+  <!-- Custom item template -->
+  <ng-template #item let-product>
+    <div class="flex items-start gap-3 py-1">
+      <!-- Thumbnail -->
+      <div class="w-9 h-11 rounded-sm overflow-hidden bg-gray-100 shrink-0">
+        @if (product.image_urls?.[0]) {
+          <img
+            [src]="product.image_urls[0]"
+            [alt]="product.name"
+            class="w-full h-full object-cover"
+          />
+        } @else {
+          <div class="w-full h-full flex items-center justify-center">
+            <i class="pi pi-image text-[0.7rem] text-gray-300"></i>
+          </div>
+        }
+      </div>
+
+      <!-- Info -->
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-medium text-[#1a1a1a] mb-0.5 truncate">
+          {{ product.name }}
+        </p>
+        <p class="text-xs text-gray-400 uppercase tracking-wide mb-0">
+          {{ product.category }}
+        </p>
+      </div>
+
+      <!-- Price -->
+      <span class="text-sm font-semibold text-[#1a1a1a] shrink-0">
+        GHS {{ product.price | number: '1.2-2' }}
+      </span>
+    </div>
+  </ng-template>
+
+  <!-- Empty result template -->
+  <ng-template #empty>
+    <div class="px-4 py-3 text-center">
+      <i class="pi pi-search text-xl text-gray-200 block mb-1.5"></i>
+      <p class="text-xs text-gray-400 m-0">No products found</p>
+    </div>
+  </ng-template>
+</p-autocomplete>
