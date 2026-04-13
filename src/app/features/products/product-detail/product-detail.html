@@ -206,28 +206,7 @@
 
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
           @for (related of relatedProducts(); track related.id) {
-            <a
-              [routerLink]="['/products', related.id]"
-              class="group block no-underline text-inherit"
-            >
-              <div
-                class="relative overflow-hidden rounded-sm bg-gray-100 mb-3"
-                style="aspect-ratio: 3/4"
-              >
-                <img
-                  [src]="related.image_urls[0] || 'assets/images/placeholder.jpg'"
-                  [alt]="related.name"
-                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                />
-              </div>
-              <p class="text-sm text-gray-900 mb-1 truncate">{{ related.name }}</p>
-              <p class="text-xs text-gray-400 uppercase tracking-widest mb-1">
-                {{ related.category }}
-              </p>
-              <p class="text-sm font-medium text-gray-600">
-                GHS {{ related.price | number: '1.2-2' }}
-              </p>
-            </a>
+            <app-product-card [product]="related" />
           }
         </div>
       </div>

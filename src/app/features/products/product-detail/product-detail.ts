@@ -12,10 +12,11 @@ import { DividerModule } from 'primeng/divider';
 import { ToastModule } from 'primeng/toast';
 import { SkeletonModule } from 'primeng/skeleton';
 import { MessageService } from 'primeng/api';
+import { ProductCard } from "../../../shared/components/product-card/product-card";
 
 @Component({
   selector: 'app-product-detail',
-  imports: [CommonModule, ButtonModule, TagModule, DividerModule, ToastModule, SkeletonModule, RouterLink],
+  imports: [CommonModule, ButtonModule, TagModule, DividerModule, ToastModule, SkeletonModule, RouterLink, ProductCard],
   providers: [MessageService],
   templateUrl: './product-detail.html',
   styleUrl: './product-detail.css',
