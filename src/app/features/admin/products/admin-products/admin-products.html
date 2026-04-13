@@ -44,7 +44,13 @@
       </a>
     </div>
   } @else {
-    <p-table [value]="products()" [loading]="loading()" stripedRows responsiveLayout="scroll">
+    <p-table [value]="products()" [loading]="loading()" 
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
+      stripedRows responsiveLayout="scroll">
       <!-- Header -->
       <ng-template pTemplate="header">
         <tr>

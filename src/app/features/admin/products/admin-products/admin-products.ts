@@ -60,7 +60,7 @@ export class AdminProducts implements OnInit {
         severity: 'success',
         summary: 'Deleted',
         detail: 'Product removed successfully',
-        life: 3000,
+        life: 2000,
       });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to delete product';
@@ -68,7 +68,7 @@ export class AdminProducts implements OnInit {
         severity: 'error',
         summary: 'Error',
         detail: message,
-        life: 4000,
+        life: 2000,
       });
     }
   }
@@ -88,7 +88,7 @@ export class AdminProducts implements OnInit {
         severity: 'error',
         summary: 'Error',
         detail: message,
-        life: 4000,
+        life: 2000,
       });
     }
   }

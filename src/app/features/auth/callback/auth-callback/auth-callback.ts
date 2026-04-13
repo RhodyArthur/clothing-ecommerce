@@ -14,16 +14,22 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
         <p class="text-sm text-gray-400">Signing you in...</p>
       </div>
     </div>
-  `
+  `,
 })
 export class AuthCallback implements OnInit {
   private supabase = inject(Supabase);
-  private router   = inject(Router);
+  private router = inject(Router);
 
   async ngOnInit(): Promise<void> {
     const { data } = await this.supabase.client.auth.getSession();
     if (data.session) {
-      this.router.navigate(['/']);
+      const user = data.session.user;
+      const isAdmin = !!user?.user_metadata?.['is_admin'];
+      if (isAdmin) {
+        this.router.navigate(['/admin']);
+      } else {
+        this.router.navigate(['/']);
+      }
     } else {
       this.router.navigate(['/auth/login']);
     }
