@@ -83,14 +83,14 @@ export class AdminOrders implements OnInit {
         severity: 'success',
         summary: 'Updated',
         detail: `Order status set to ${status}`,
-        life: 3000,
+        life: 2000,
       });
     } else {
       this.messages.add({
         severity: 'error',
         summary: 'Error',
         detail: 'Failed to update status',
-        life: 3000,
+        life: 2000,
       });
     }
   }

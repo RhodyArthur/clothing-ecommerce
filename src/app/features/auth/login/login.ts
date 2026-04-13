@@ -11,9 +11,16 @@ import { MessageModule } from 'primeng/message';
 
 @Component({
   selector: 'app-login',
-  imports: [CommonModule, ReactiveFormsModule, RouterLink,
-    InputTextModule, PasswordModule, ButtonModule,
-    DividerModule, MessageModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    RouterLink,
+    InputTextModule,
+    PasswordModule,
+    ButtonModule,
+    DividerModule,
+    MessageModule,
+  ],
   templateUrl: './login.html',
 })
 export class Login {
@@ -41,8 +48,15 @@ export class Login {
 
     try {
       await this.auth.signIn(this.form.value.email!, this.form.value.password!);
+      // wait for the auth service to update session state
+      await this.auth.waitForSession();
       const returnUrl = this.route.snapshot.queryParams['returnUrl'] ?? '/';
-      this.router.navigateByUrl(returnUrl);
+      // if the signed-in user is an admin, send them to the admin dashboard
+      if (this.auth.isAdmin()) {
+        this.router.navigateByUrl('/admin');
+      } else {
+        this.router.navigateByUrl(returnUrl);
+      }
     } catch (err: unknown) {
       const message =
         err instanceof Error

@@ -64,6 +64,7 @@ export class ProductForm implements OnInit {
   categories = [
     { label: 'Women', value: 'women' },
     { label: 'Men', value: 'men' },
+    { label: 'Unisex',     value: 'unisex'      },
     { label: 'Accessories', value: 'accessories' },
   ];
 
@@ -137,7 +138,7 @@ export class ProductForm implements OnInit {
           severity: 'error',
           summary: 'Upload failed',
           detail: message,
-          life: 4000,
+          life: 2000,
         });
       }
     }
@@ -218,7 +219,7 @@ export class ProductForm implements OnInit {
           severity: 'success',
           summary: 'Saved',
           detail: 'Product updated successfully',
-          life: 3000,
+          life: 2000,
         });
       } else {
         const { error } = await this.supabase.client
@@ -229,7 +230,7 @@ export class ProductForm implements OnInit {
           severity: 'success',
           summary: 'Created',
           detail: 'Product added successfully',
-          life: 3000,
+          life: 2000,
         });
       }
 
@@ -246,7 +247,7 @@ export class ProductForm implements OnInit {
         severity: 'error',
         summary: 'Error',
         detail: message,
-        life: 4000,
+        life: 2000,
       });
     } finally {
       this.submitting.set(false);

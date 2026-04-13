@@ -1,5 +1,5 @@
-import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { Component, computed, effect, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { CommonModule, NgTemplateOutlet } from '@angular/common';
 import { SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
@@ -7,15 +7,16 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { SliderModule } from 'primeng/slider';
 import { DrawerModule } from 'primeng/drawer';
 import { Product } from '../../../core/services/product';
-import { Wishlist } from '../../../core/services/wishlist';
 import { FormsModule } from '@angular/forms';
+import { Search } from '../../../shared/components/search/search';
+import { ProductCard } from '../../../shared/components/product-card/product-card';
+import { MinPipe } from '../../../shared/pipes/min-pipe';
 
-type SortOption = 'featured' | 'price-asc' | 'price-desc' | 'newest' | 'highest-rated';
+type SortOption = 'featured' | 'price-asc' | 'price-desc' | 'newest';
 
 @Component({
   selector: 'app-product-list',
   imports: [
-    RouterLink,
     CommonModule,
     FormsModule,
     NgTemplateOutlet,
@@ -24,13 +25,15 @@ type SortOption = 'featured' | 'price-asc' | 'price-desc' | 'newest' | 'highest-
     ButtonModule,
     SkeletonModule,
     SliderModule,
+    Search,
+    ProductCard,
+    MinPipe,
   ],
   templateUrl: './product-list.html',
   styleUrls: ['./product-list.css'],
 })
 export class ProductList implements OnInit, OnDestroy {
   productService = inject(Product);
-  wishlistService = inject(Wishlist);
   private route = inject(ActivatedRoute);
 
   // --- Filter state ---
@@ -41,6 +44,8 @@ export class ProductList implements OnInit, OnDestroy {
   maxPrice = signal<number>(300);
   sortBy = signal<SortOption>('featured');
   filterDrawerOpen = signal(false);
+  currentPage = signal(1);
+  pageSize = signal(12);
 
   openFilters(): void {
     this.filterDrawerOpen.set(true);
@@ -50,7 +55,7 @@ export class ProductList implements OnInit, OnDestroy {
   }
 
   // --- Filter options ---
-  categories = ['Women', 'Men', 'Accessories'];
+  categories = ['Women', 'Men', 'Unisex', 'Accessories'];
   sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
   colors = ['Black', 'White', 'Gray', 'Blue', 'Brown', 'Beige', 'Navy'];
 
@@ -59,7 +64,6 @@ export class ProductList implements OnInit, OnDestroy {
     { label: 'Price: Low → High', value: 'price-asc' },
     { label: 'Price: High → Low', value: 'price-desc' },
     { label: 'Newest', value: 'newest' },
-    { label: 'Highest Rated', value: 'highest-rated' },
   ];
 
   // --- Derived: filtered + sorted products ---
@@ -98,6 +102,19 @@ export class ProductList implements OnInit, OnDestroy {
     }
   });
 
+  // Reset page when filters change
+  resetPage = effect(() => {
+    // Touch all filter signals to create dependency
+    this.selectedCategories();
+    this.selectedSizes();
+    this.selectedColors();
+    this.minPrice();
+    this.maxPrice();
+    this.sortBy();
+    // Reset page
+    this.currentPage.set(1);
+  });
+
   ngOnInit(): void {
     // Pre-select category from query param (e.g. from navbar links)
     this.route.queryParams.subscribe((params) => {
@@ -133,14 +150,24 @@ export class ProductList implements OnInit, OnDestroy {
     );
   }
 
-  toggleWishlist(event: Event, productId: string): void {
-    event.preventDefault();
-    event.stopPropagation();
-    this.wishlistService.toggle(productId);
-  }
+  paginatedProducts = computed(() => {
+    const start = (this.currentPage() - 1) * this.pageSize();
+    const end = start + this.pageSize();
+    return this.filteredProducts().slice(start, end);
+  });
 
-  isWishlisted(productId: string): boolean {
-    return this.wishlistService.has(productId);
+  totalPages = computed(() => Math.ceil(this.filteredProducts().length / this.pageSize()));
+
+  pageNumbers = computed(() => Array.from({ length: this.totalPages() }, (_, i) => i + 1));
+
+  resultsEnd = computed(() =>
+    Math.min(this.currentPage() * this.pageSize(), this.filteredProducts().length),
+  );
+
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages()) return;
+    this.currentPage.set(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   clearFilters(): void {
