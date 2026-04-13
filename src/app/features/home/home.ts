@@ -1,20 +1,16 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { Cart } from '../../core/services/cart';
 import { Product } from '../../core/services/product';
-import { Wishlist } from '../../core/services/wishlist';
 import { RouterLink } from '@angular/router';
-import { CurrencyPipe } from '@angular/common';
 import { SkeletonModule } from 'primeng/skeleton';
+import { ProductCard } from "../../shared/components/product-card/product-card";
 
 @Component({
   selector: 'app-home',
-  imports: [RouterLink, CurrencyPipe, SkeletonModule],
+  imports: [RouterLink, SkeletonModule, ProductCard],
   templateUrl: './home.html',
 })
 export class Home implements OnInit{
   productService = inject(Product);
-  cartService    = inject(Cart);
-  wishlistService = inject(Wishlist);
 
   categories = [
     {
@@ -45,15 +41,5 @@ export class Home implements OnInit{
 
   ngOnInit(): void {
     this.productService.fetchProducts();
-  }
-
-  toggleWishlist(event: Event, productId: string): void {
-    event.preventDefault();
-    event.stopPropagation();
-    this.wishlistService.toggle(productId);
-  }
-
-  isWishlisted(productId: string): boolean {
-    return this.wishlistService.has(productId);
   }
 }

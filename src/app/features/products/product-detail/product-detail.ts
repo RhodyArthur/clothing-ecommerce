@@ -96,7 +96,7 @@ export class ProductDetail implements OnInit {
       severity: 'success',
       summary: 'Added to cart',
       detail: `${p.name} has been added to your cart`,
-      life: 2500
+      life: 2000
     });
   }
 
