@@ -30,6 +30,12 @@ export class Home implements OnInit{
       image: 'assets/images/category-men.jpg'
     },
     {
+      label:    'Unisex',
+      subtitle: 'Wear It Your Way',
+      query:    'unisex',
+      image:    'assets/images/category-unisex.jpg'
+    },
+    {
       label: 'Accessories',
       subtitle: 'Complete Your Look',
       query: 'accessories',

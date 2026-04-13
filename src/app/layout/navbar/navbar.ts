@@ -26,6 +26,7 @@ export class Navbar implements OnInit {
   navLinks = [
     { label: 'Women', path: '/products', query: { category: 'women' } },
     { label: 'Men', path: '/products', query: { category: 'men' } },
+    { label: 'Unisex',      path: '/products', query: { category: 'unisex'      } },
     { label: 'Accessories', path: '/products', query: { category: 'accessories' } },
   ];
 

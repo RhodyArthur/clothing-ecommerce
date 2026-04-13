@@ -50,7 +50,7 @@ export class ProductList implements OnInit, OnDestroy {
   }
 
   // --- Filter options ---
-  categories = ['Women', 'Men', 'Accessories'];
+  categories = ['Women', 'Men', 'Unisex', 'Accessories'];
   sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
   colors = ['Black', 'White', 'Gray', 'Blue', 'Brown', 'Beige', 'Navy'];
 

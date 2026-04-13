@@ -64,6 +64,7 @@ export class ProductForm implements OnInit {
   categories = [
     { label: 'Women', value: 'women' },
     { label: 'Men', value: 'men' },
+    { label: 'Unisex',     value: 'unisex'      },
     { label: 'Accessories', value: 'accessories' },
   ];
 
