@@ -7,19 +7,7 @@
   <div class="flex items-center w-full max-w-screen-2xl mx-auto px-8 h-17">
     <!-- LEFT: hamburger (mobile) + desktop logo -->
     <div class="flex items-center gap-3">
-      <button
-        class="md:hidden flex items-center justify-center p-1 text-gray-900 bg-transparent border-none cursor-pointer"
-        (click)="toggleMobileMenu()"
-        aria-label="Menu"
-      >
-        @if (mobileMenuOpen()) {
-          <i class="pi pi-times text-[22px]"></i>
-        } @else {
-          <i class="pi pi-bars text-[22px]"></i>
-        }
-      </button>
-
-      <!-- Mobile logo (left, next to hamburger) -->
+      <!-- Mobile logo (left) -->
       <a
         routerLink="/"
         class="md:hidden inline-block text-[1.05rem] font-bold tracking-widest text-gray-900 no-underline"
@@ -57,27 +45,20 @@
 
     <!-- RIGHT: icons (mobile + desktop handling) -->
     <div class="flex items-center gap-2">
-      <!-- Mobile icons: keep only search visible; other actions are inside PrimeNG drawer -->
+      <!-- Mobile icons: other actions are inside PrimeNG drawer (search moved to products page) -->
       <div class="flex items-center gap-2 md:hidden">
-        <a
-          routerLink="/products"
-          class="flex items-center justify-center w-9 h-9 rounded-md text-gray-900 hover:bg-gray-100 transition-colors"
-          aria-label="Search"
+        <button
+          class="flex items-center justify-center p-1 text-gray-900 bg-transparent border-none cursor-pointer"
+          (click)="toggleMobileMenu()"
+          aria-label="Menu"
         >
-          <i class="pi pi-search text-[18px]"></i>
-        </a>
+          <i class="pi pi-bars text-[22px]"></i>
+        </button>
       </div>
 
       <!-- Desktop icons -->
       <div class="hidden md:flex items-center gap-2">
-        <!-- Search -->
-        <a
-          routerLink="/products"
-          class="flex items-center justify-center w-10 h-10 rounded-xl text-gray-900 hover:bg-gray-100 transition-colors"
-          aria-label="Search"
-        >
-          <i class="pi pi-search text-[20px]"></i>
-        </a>
+        <!-- Search moved to products page; keep space for icons -->
 
         <!-- Account (desktop) — shows dropdown if logged in -->
         @if (auth.currentUser()) {
