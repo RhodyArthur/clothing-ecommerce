@@ -2,3 +2,81 @@
 
 @import 'tailwindcss';
 @import "primeicons/primeicons.css";
+
+/* Carousel nav buttons — white ghost on dark background */
+.p-carousel .p-carousel-prev,
+.p-carousel .p-carousel-next {
+  color: white !important;
+  background: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  border-radius: 50% !important;
+  width: 2.5rem !important;
+  height: 2.5rem !important;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.p-carousel .p-carousel-prev:hover,
+.p-carousel .p-carousel-next:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* Dot indicators */
+.p-carousel .p-carousel-indicator button {
+  background: rgba(255, 255, 255, 0.3) !important;
+  border-radius: 50% !important;
+  width: 0.5rem !important;
+  height: 0.5rem !important;
+}
+
+.p-carousel .p-carousel-indicator.p-highlight button {
+  background: white !important;
+}
+
+
+:root {
+  /* Backgrounds */
+  --color-bg: #ffffff;           /* replaces: bg-white, bg-gray-50 */
+  --color-surface: #f8f8f6;      /* replaces: bg-gray-100, bg-[#fafafa], bg-[#f8f8f6] */
+  --color-surface-alt: #f3f4f6;  /* replaces: bg-gray-200 in non-interactive contexts */
+  --color-inverse: #f3f4f6;      /* replaces: bg-[#111] (dark hero section) */
+
+  /* Text */
+  --color-text-primary: #111111;    /* replaces: text-gray-900, text-[#111], text-[#1a1a1a] */
+  --color-text-secondary: #6b7280; /* replaces: text-gray-500, text-gray-600 */
+  --color-text-muted: #9ca3af;     /* replaces: text-gray-400 */
+
+  /* Borders */
+  --color-border: #e5e7eb;         /* replaces: border-gray-200, border-gray-100 */
+  --color-border-strong: #d1d5db;  /* replaces: border-gray-300 */
+
+  /* Interactive / state */
+  --color-selected-bg: #111111;    /* size button selected state */
+  --color-selected-text: #ffffff;
+  --color-unselected-text: #374151;
+
+  /* Accent (keep consistent across modes) */
+  --color-accent: #dc2626;         /* wishlist heart, error states */
+}
+
+/* @media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #0f0f0f;
+    --color-surface: #1a1a1a;
+    --color-surface-alt: #262626;
+    --color-inverse: #111111;
+
+    --color-text-primary: #f3f4f6;
+    --color-text-secondary: #9ca3af;
+    --color-text-muted: #6b7280;
+
+    --color-border: #374151;
+    --color-border-strong: #4b5563;
+
+    --color-selected-bg: #f3f4f6;
+    --color-selected-text: #111111;
+    --color-unselected-text: #9ca3af;
+
+    --color-accent: #f87171;
+  }
+} */
