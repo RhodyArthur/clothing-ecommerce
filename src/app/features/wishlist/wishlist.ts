@@ -6,10 +6,11 @@ import { Product as ProductService } from '../../core/services/product';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
+import { EmptyState } from "../../shared/components/empty-state/empty-state";
 
 @Component({
   selector: 'app-wishlist',
-  imports: [CommonModule, RouterLink, ButtonModule],
+  imports: [CommonModule, RouterLink, ButtonModule, EmptyState],
   templateUrl: './wishlist.html',
   styleUrl: './wishlist.css',
 })
