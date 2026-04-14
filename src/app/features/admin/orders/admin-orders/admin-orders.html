@@ -36,14 +36,22 @@
 
     <!-- Empty -->
   } @else if (filteredOrders().length === 0) {
-    <div class="bg-white border border-gray-200 rounded-xl p-16 text-center">
-      <i class="pi pi-shopping-bag text-gray-200 mb-4" style="font-size: 3rem"></i>
-      <p class="text-sm text-gray-400">No orders found</p>
+    <div class="bg-white border border-gray-200 rounded-xl p-8">
+      <app-empty-state title="No orders found" icon="pi pi-shopping-bag"></app-empty-state>
     </div>
 
     <!-- Orders table -->
   } @else {
-    <p-table [value]="filteredOrders()" responsiveLayout="scroll" styleClass="p-datatable-sm">
+    <p-table
+      [value]="filteredOrders()"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
+      responsiveLayout="scroll"
+      class="p-datatable-sm"
+    >
       <ng-template pTemplate="header">
         <tr>
           <th>Order</th>

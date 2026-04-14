@@ -55,7 +55,7 @@
 <!-- ══════════════════════════════
      FEATURED PRODUCTS
 ══════════════════════════════ -->
-<section class="bg-[#fafafa] py-20 px-8">
+<section class="bg-(--color-surface)] py-20 px-8">
   <div class="max-w-screen-2xl mx-auto">
     <h2
       class="text-[clamp(1.5rem,3vw,2rem)] font-bold text-center text-gray-900 mb-12 tracking-wide"
@@ -96,18 +96,45 @@
 <!-- ══════════════════════════════
      PROMO BANNER
 ══════════════════════════════ -->
-<section class="bg-[#111] flex items-center justify-center py-28 px-8">
-  <div class="text-center text-white">
-    <h2 class="text-[clamp(2.5rem,6vw,4.5rem)] font-extrabold tracking-[0.06em] mb-3">
-      EASTER SALE
-    </h2>
-    <p class="text-base font-light mb-10 opacity-85">Up to 30% off selected items</p>
-    <a
-      routerLink="/products"
-      [queryParams]="{ sale: true }"
-      class="inline-block bg-white text-[#111] text-sm font-semibold tracking-wide px-10 py-3.5 rounded no-underline hover:bg-gray-200 hover:-translate-y-px transition-all duration-200"
-    >
-      Shop Sale
-    </a>
-  </div>
+<section class="bg-(--color-selected-bg) flex items-center justify-center py-20 px-8">
+  @if (hasActivePromo()) {
+    <div class="text-center text-white">
+      <h2 class="text-[clamp(2.5rem,6vw,4.5rem)] font-extrabold tracking-[0.06em] mb-3">
+        {{ promo.label }}
+      </h2>
+      <p class="text-base font-light mb-10 opacity-85">{{ promo.subtitle }}</p>
+      <a
+        routerLink="/products"
+        [queryParams]="{ sale: true }"
+        class="inline-block bg-white text-(--color-text-primary) text-sm font-semibold tracking-wide px-10 py-3.5 rounded no-underline hover:bg-gray-200 hover:-translate-y-px transition-all duration-200"
+      >
+        Shop Sale
+      </a>
+    </div>
+  }@else {
+    <div class="w-full max-w-2xl">
+      <p-carousel
+        [value]="fashionTips"
+        [numVisible]="1"
+        [numScroll]="1"
+        [circular]="true"
+        autoplayInterval="5000"
+      >
+        <ng-template pTemplate="item" let-tip>
+          <div class="text-center text-white">
+            <p class="text-xs font-semibold tracking-[0.2em] uppercase opacity-60 mb-4">
+              {{ tip.label }}
+            </p>
+            <h2 class="text-[clamp(1.75rem,4vw,3rem)] font-extrabold tracking-wide leading-tight mb-4">
+              {{ tip.heading }}
+            </h2>
+            <p class="text-base font-light opacity-75 max-w-md mx-auto">
+              {{ tip.body }}
+            </p>
+          </div>
+        </ng-template>
+      </p-carousel>
+    </div>
+  }
 </section>
+

@@ -1,20 +1,18 @@
 <p-toast position="top-right" />
+<p-confirmdialog />
 
 <div class="max-w-7xl mx-auto px-4 md:px-8 py-10">
   <h1 class="text-2xl font-bold text-gray-900 mb-8">Shopping Cart</h1>
 
   <!-- ══════════ EMPTY STATE ══════════ -->
   @if (cartService.isEmpty()) {
-    <div class="flex flex-col items-center justify-center py-28 text-center">
-      <i class="pi pi-shopping-cart mb-5 text-gray-200" style="font-size: 3.5rem"></i>
-      <p class="text-base font-semibold text-gray-700 mb-2">Your cart is empty</p>
-      <p class="text-sm text-gray-400 mb-7">Looks like you haven't added anything yet.</p>
-      <p-button
-        label="Continue Shopping"
-        routerLink="/products"
-        styleClass="!bg-gray-900 !border-gray-900 !text-white"
-      />
-    </div>
+    <app-empty-state
+      title="Your cart is empty"
+      description="Looks like you haven't added anything yet."
+      icon="pi pi-shopping-cart"
+      actionLabel="Continue Shopping"
+      actionRouterLink="/products"
+    ></app-empty-state>
 
     <!-- ══════════ CART WITH ITEMS ══════════ -->
   } @else {
@@ -153,6 +151,15 @@
             routerLink="/products"
             [outlined]="true"
             styleClass="w-full !border-gray-300 !text-gray-700 hover:!bg-gray-50"
+          />
+
+          <!-- Clear Cart -->
+          <p-button
+            label="Clear Cart"
+            severity="danger"
+            [text]="true"
+            styleClass="w-full mt-2"
+            (onClick)="confirmClearCart()"
           />
         </div>
       </div>

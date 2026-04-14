@@ -5,10 +5,11 @@ import { FormsModule } from '@angular/forms';
 import { AutoCompleteCompleteEvent, AutoCompleteSelectEvent } from 'primeng/types/autocomplete';
 import { Search as SearchService } from '../../../core/services/search';
 import { AutoCompleteModule } from 'primeng/autocomplete';
+import { EmptyState } from '../empty-state/empty-state';
 
 @Component({
   selector: 'app-search',
-  imports: [CommonModule, FormsModule, AutoCompleteModule],
+  imports: [CommonModule, FormsModule, AutoCompleteModule, EmptyState],
   templateUrl: './search.html',
   styleUrl: './search.css',
 })
@@ -29,9 +30,8 @@ export class Search {
 
   onKeydown(event: KeyboardEvent): void {
     if (event.key === 'Enter') {
-      const q = typeof this.selectedProduct === 'string'
-        ? this.selectedProduct
-        : this.search.query();
+      const q =
+        typeof this.selectedProduct === 'string' ? this.selectedProduct : this.search.query();
       if (q) {
         this.search.query.set(q);
         this.search.goToResults();

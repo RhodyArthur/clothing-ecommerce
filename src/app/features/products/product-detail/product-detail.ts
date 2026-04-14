@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Product } from '../../../core/services/product';
 import { Cart } from '../../../core/services/cart';
@@ -13,10 +13,11 @@ import { ToastModule } from 'primeng/toast';
 import { SkeletonModule } from 'primeng/skeleton';
 import { MessageService } from 'primeng/api';
 import { ProductCard } from "../../../shared/components/product-card/product-card";
+import { SizeGuide } from '../../../shared/components/size-guide/size-guide';
 
 @Component({
   selector: 'app-product-detail',
-  imports: [CommonModule, ButtonModule, TagModule, DividerModule, ToastModule, SkeletonModule, RouterLink, ProductCard],
+  imports: [CommonModule, ButtonModule, TagModule, DividerModule, ToastModule, SkeletonModule, RouterLink, ProductCard, SizeGuide],
   providers: [MessageService],
   templateUrl: './product-detail.html',
   styleUrl: './product-detail.css',
@@ -36,6 +37,12 @@ export class ProductDetail implements OnInit {
   selectedSize = signal<string>('');
   selectedColor = signal<string>('');
   quantity = signal<number>(1);
+
+  @ViewChild(SizeGuide) sizeGuide!: SizeGuide;
+
+  openSizeGuide(): void {
+    this.sizeGuide.open();
+  }
 
   relatedProducts = computed(() =>
     this.productService

@@ -48,9 +48,6 @@
 
   <!-- Empty result template -->
   <ng-template #empty>
-    <div class="px-4 py-3 text-center">
-      <i class="pi pi-search text-xl text-gray-200 block mb-1.5"></i>
-      <p class="text-xs text-gray-400 m-0">No products found</p>
-    </div>
+    <app-empty-state title="No products found" icon="pi pi-search"></app-empty-state>
   </ng-template>
 </p-autocomplete>
