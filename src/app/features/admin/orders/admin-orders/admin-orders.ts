@@ -13,6 +13,7 @@ import { ToastModule } from 'primeng/toast';
 import { OrderStatus } from '../../../../core/models/order';
 import { Order } from '../../../../core/services/order';
 import { Order as OrderModel } from '../../../../core/models/order';
+import { EmptyState } from '../../../../shared/components/empty-state/empty-state';
 
 @Component({
   selector: 'app-admin-orders',
@@ -27,6 +28,7 @@ import { Order as OrderModel } from '../../../../core/models/order';
     DialogModule,
     DividerModule,
     ButtonModule,
+    EmptyState,
   ],
   providers: [MessageService],
   templateUrl: './admin-orders.html',
