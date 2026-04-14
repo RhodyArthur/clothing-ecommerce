@@ -11,6 +11,7 @@ import { FormsModule } from '@angular/forms';
 import { Search } from '../../../shared/components/search/search';
 import { ProductCard } from '../../../shared/components/product-card/product-card';
 import { MinPipe } from '../../../shared/pipes/min-pipe';
+import { EmptyState } from "../../../shared/components/empty-state/empty-state";
 
 type SortOption = 'featured' | 'price-asc' | 'price-desc' | 'newest';
 
@@ -28,7 +29,8 @@ type SortOption = 'featured' | 'price-asc' | 'price-desc' | 'newest';
     Search,
     ProductCard,
     MinPipe,
-  ],
+    EmptyState
+],
   templateUrl: './product-list.html',
   styleUrls: ['./product-list.css'],
 })

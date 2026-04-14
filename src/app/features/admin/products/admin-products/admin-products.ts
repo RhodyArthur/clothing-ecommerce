@@ -11,6 +11,7 @@ import { Product } from '../../../../core/services/product';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { Supabase } from '../../../../core/services/supabase';
 import { Product as ProductModel } from '../../../../core/models/product';
+import { EmptyState } from '../../../../shared/components/empty-state/empty-state';
 
 @Component({
   selector: 'app-admin-products',
@@ -23,6 +24,7 @@ import { Product as ProductModel } from '../../../../core/models/product';
     ToastModule,
     SkeletonModule,
     TableModule,
+    EmptyState,
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './admin-products.html',

@@ -5,11 +5,12 @@ import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { SkeletonModule } from 'primeng/skeleton';
 import { Order } from '../../../core/services/order';
+import { EmptyState } from "../../../shared/components/empty-state/empty-state";
 
 
 @Component({
   selector: 'app-orders',
-  imports: [CommonModule, RouterLink, ButtonModule, TagModule, SkeletonModule],
+  imports: [CommonModule, RouterLink, ButtonModule, TagModule, SkeletonModule, EmptyState],
   templateUrl: './orders.html',
 })
 export class Orders implements OnInit {

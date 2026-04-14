@@ -176,32 +176,52 @@ export class Cart {
   }
 }
 
+  // private async upsertToSupabase(item: CartItem): Promise<void> {
+  //   const userId = this.auth.currentUser()?.id;
+  //   if (!userId) return;
+
+  //   try {
+  //     const { error } = await this.supabase.client.from('cart_items').upsert(
+  //       {
+  //         user_id: userId,
+  //         product_id: item.product_id,
+  //         quantity: item.quantity,
+  //         size: item.size,
+  //         color: item.color,
+  //       },
+  //       {
+  //         onConflict: 'user_id,product_id,size,color',
+  //         ignoreDuplicates: false,
+  //       },
+  //     );
+
+  //     if (error) throw error;
+  //   } catch (err) {
+  //     console.error('[CartService] upsertToSupabase:', err);
+  //   }
+  // }
+
+  // ── localStorage (guest only) ──────────────────────
+
   private async upsertToSupabase(item: CartItem): Promise<void> {
     const userId = this.auth.currentUser()?.id;
     if (!userId) return;
 
     try {
-      const { error } = await this.supabase.client.from('cart_items').upsert(
-        {
-          user_id: userId,
-          product_id: item.product_id,
-          quantity: item.quantity,
-          size: item.size,
-          color: item.color,
-        },
-        {
-          onConflict: 'user_id,product_id,size,color',
-          ignoreDuplicates: false,
-        },
-      );
+      const { error } = await this.supabase.client.rpc('increment_cart_item', {
+        p_user_id: userId,
+        p_product_id: item.product_id,
+        p_size: item.size,
+        p_color: item.color,
+        p_quantity: item.quantity,
+      });
 
       if (error) throw error;
     } catch (err) {
       console.error('[CartService] upsertToSupabase:', err);
+      throw err; // Re-throw so addItem can handle it if needed
     }
   }
-
-  // ── localStorage (guest only) ──────────────────────
 
   private saveToStorage(items: CartItem[]): void {
     try {
