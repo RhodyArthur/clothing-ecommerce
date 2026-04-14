@@ -92,7 +92,9 @@
           <div class="flex items-center justify-between mb-3">
             <p class="text-sm font-medium text-gray-900">Select Size</p>
             <button
-              class="text-xs text-gray-400 bg-transparent border-none cursor-pointer underline p-0"
+              (click)="openSizeGuide()"
+              class="text-xs text-gray-400 bg-transparent border-none cursor-pointer
+                    underline p-0 hover:text-gray-700 transition-colors"
             >
               Size Guide
             </button>
@@ -213,3 +215,4 @@
     }
   }
 </div>
+<app-size-guide />

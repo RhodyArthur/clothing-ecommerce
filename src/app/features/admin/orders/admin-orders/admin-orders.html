@@ -43,7 +43,13 @@
 
     <!-- Orders table -->
   } @else {
-    <p-table [value]="filteredOrders()" responsiveLayout="scroll" styleClass="p-datatable-sm">
+    <p-table [value]="filteredOrders()"
+     [paginator]="true"
+     [rows]="10"
+     [rowsPerPageOptions]="[10, 25, 50]"
+     [showCurrentPageReport]="true"
+     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
+     responsiveLayout="scroll" class="p-datatable-sm">
       <ng-template pTemplate="header">
         <tr>
           <th>Order</th>
