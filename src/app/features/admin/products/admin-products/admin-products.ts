@@ -1,8 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
+import { SelectModule } from 'primeng/select';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
@@ -12,6 +14,8 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { Supabase } from '../../../../core/services/supabase';
 import { Product as ProductModel } from '../../../../core/models/product';
 import { EmptyState } from '../../../../shared/components/empty-state/empty-state';
+import { Search as SearchComponent } from '../../../../shared/components/search/search';
+import { Search as SearchServiceImpl } from '../../../../core/services/search';
 
 @Component({
   selector: 'app-admin-products',
@@ -19,12 +23,15 @@ import { EmptyState } from '../../../../shared/components/empty-state/empty-stat
     CommonModule,
     RouterLink,
     ButtonModule,
+    SelectModule,
+    FormsModule,
     TagModule,
     ConfirmDialogModule,
     ToastModule,
     SkeletonModule,
     TableModule,
     EmptyState,
+    SearchComponent,
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './admin-products.html',
@@ -37,10 +44,38 @@ export class AdminProducts implements OnInit {
 
   products = this.productService.products;
   loading = this.productService.loading;
+  private search = inject(SearchServiceImpl);
+
+  statusFilter = signal<'all' | 'active' | 'hidden'>('all');
+
+  statusOptions: { label: string; value: 'all' | 'active' | 'hidden' }[] = [
+    { label: 'All status', value: 'all' },
+    { label: 'Active', value: 'active' },
+    { label: 'Hidden', value: 'hidden' },
+  ];
+
+  filteredProducts = computed(() => {
+    const term = this.search.query().trim().toLowerCase();
+    const status = this.statusFilter();
+
+    return this.products().filter((product) => {
+      const matchesStatus =
+        status === 'all' || (status === 'active' ? product.is_active : !product.is_active);
+
+      if (!matchesStatus) return false;
+      if (!term) return true;
+
+      return [product.name, product.description, product.category]
+        .filter((value): value is string => Boolean(value))
+        .some((value) => value.toLowerCase().includes(term));
+    });
+  });
 
   ngOnInit(): void {
     this.productService.fetchAllProducts();
   }
+
+  // status is set directly via ngModelChange binding in template
 
   confirmDelete(product: ProductModel): void {
     this.confirm.confirm({

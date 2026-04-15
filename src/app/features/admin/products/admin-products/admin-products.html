@@ -5,15 +5,29 @@
   <div class="flex items-center justify-between mb-6">
     <div>
       <h1 class="text-xl font-bold text-gray-900 mb-1">Products</h1>
-      <p class="text-sm text-gray-400">{{ products().length }} total products</p>
+      <p class="text-sm text-gray-400">
+        {{ filteredProducts().length }} of {{ products().length }} products
+      </p>
     </div>
-    <a
-      routerLink="/admin/products/new"
-      class="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg no-underline hover:opacity-85 transition-opacity"
-    >
-      <i class="pi pi-plus" style="font-size: 0.75rem"></i>
-      Add Product
-    </a>
+  </div>
+
+  <div class="mb-6 grid grid-cols-1 md:grid-cols-[1fr_ma220px] gap-3">
+    <div class="flex items-center gap-4">
+      <div class="w-1/2">
+        <app-search />
+      </div>
+
+      <label class="sr-only" for="status-filter">Filter by status</label>
+      <p-select
+        id="status-filter"
+        [options]="statusOptions"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="statusFilter()"
+        (ngModelChange)="statusFilter.set($event)"
+        placeholder="All status"
+      ></p-select>
+    </div>
   </div>
 
   <!-- Loading -->
@@ -40,7 +54,7 @@
     ></app-empty-state>
   } @else {
     <p-table
-      [value]="products()"
+      [value]="filteredProducts()"
       [loading]="loading()"
       [paginator]="true"
       [rows]="10"
