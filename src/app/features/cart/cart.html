@@ -2,7 +2,24 @@
 <p-confirmdialog />
 
 <div class="max-w-7xl mx-auto px-4 md:px-8 py-10">
-  <h1 class="text-2xl font-bold text-gray-900 mb-8">Shopping Cart</h1>
+  <div class="flex items-start justify-between gap-4 mb-8">
+    <div class="flex flex-col gap-1">
+      <h1 class="text-2xl font-bold text-gray-900">Shopping Cart</h1>
+      <span class="text-base font-medium text-gray-500 ml-1">
+        ({{ cartService.itemCount() }} {{ cartService.itemCount() === 1 ? 'item' : 'items' }})
+      </span>
+    </div>
+
+    @if (!cartService.isEmpty()) {
+      <p-button
+        label="Clear Cart"
+        severity="danger"
+        [text]="true"
+        styleClass="shrink-0"
+        (onClick)="confirmClearCart()"
+      />
+    }
+  </div>
 
   <!-- ══════════ EMPTY STATE ══════════ -->
   @if (cartService.isEmpty()) {
@@ -151,15 +168,6 @@
             routerLink="/products"
             [outlined]="true"
             styleClass="w-full !border-gray-300 !text-gray-700 hover:!bg-gray-50"
-          />
-
-          <!-- Clear Cart -->
-          <p-button
-            label="Clear Cart"
-            severity="danger"
-            [text]="true"
-            styleClass="w-full mt-2"
-            (onClick)="confirmClearCart()"
           />
         </div>
       </div>

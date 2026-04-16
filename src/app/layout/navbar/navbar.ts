@@ -4,11 +4,14 @@ import { Cart } from '../../core/services/cart';
 import { Wishlist } from '../../core/services/wishlist';
 import { RouterLink } from '@angular/router';
 import { DrawerModule } from 'primeng/drawer';
-import { Divider } from "primeng/divider";
+import { Divider } from 'primeng/divider';
 
 @Component({
   selector: 'app-navbar',
   imports: [RouterLink, DrawerModule, Divider],
+  host: {
+    class: 'block sticky top-0 z-50',
+  },
   templateUrl: './navbar.html',
 })
 export class Navbar implements OnInit {
@@ -26,7 +29,7 @@ export class Navbar implements OnInit {
   navLinks = [
     { label: 'Women', path: '/products', query: { category: 'women' } },
     { label: 'Men', path: '/products', query: { category: 'men' } },
-    { label: 'Unisex',      path: '/products', query: { category: 'unisex'      } },
+    { label: 'Unisex', path: '/products', query: { category: 'unisex' } },
     { label: 'Accessories', path: '/products', query: { category: 'accessories' } },
   ];
 

@@ -66,6 +66,7 @@ export class Checkout implements OnInit {
       this.form.patchValue({
         email: user.email ?? '',
         fullName: user.user_metadata?.['full_name'] ?? '',
+        phoneNumber: user.user_metadata?.['phone_number'] ?? '',
       });
     }
   }
@@ -130,7 +131,7 @@ export class Checkout implements OnInit {
 
       // 4 — Clear cart + redirect
       this.cartService.clearCart();
-      window.open(whatsappUrl, '_blank');
+      window.location.href = whatsappUrl;
       this.router.navigate(['/orders', order.id]);
     } catch (err: unknown) {
       const detail =
