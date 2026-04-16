@@ -123,16 +123,23 @@ export class Checkout implements OnInit {
         .filter(Boolean)
         .join('\n');
 
-      // 3 — Mark whatsapp_sent + open WhatsApp
+      // 3 — Mark whatsapp_sent
       await this.orderService.markWhatsappSent(order.id);
 
-      const whatsappNumber = environment.whatsappNumber;
-      const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`; // ← encode the whole thing
+      // 4 — Clear cart + navigate ONLY after user returns from WhatsApp
+      const handleReturn = () => {
+        if (document.visibilityState === 'visible') {
+          document.removeEventListener('visibilitychange', handleReturn);
+          this.cartService.clearCart();
+          this.router.navigate(['/orders', order.id]);
+        }
+      };
+      document.addEventListener('visibilitychange', handleReturn);
 
-      // 4 — Clear cart + redirect
-      this.cartService.clearCart();
+      // 5 — Navigate to WhatsApp (no popup blocker risk)
+      const whatsappUrl = `https://wa.me/${environment.whatsappNumber}?text=${encodeURIComponent(message)}`;
       window.location.href = whatsappUrl;
-      this.router.navigate(['/orders', order.id]);
+
     } catch (err: unknown) {
       const detail =
         err instanceof Error
