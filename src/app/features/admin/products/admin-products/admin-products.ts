@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -53,6 +53,32 @@ export class AdminProducts implements OnInit {
     { label: 'Active', value: 'active' },
     { label: 'Hidden', value: 'hidden' },
   ];
+
+  mobilePage = signal(1);
+  readonly mobilePageSize = 10;
+
+  private resetMobilePage = effect(() => {
+    this.filteredProducts();
+    this.mobilePage.set(1);
+  });
+
+  mobilePaginatedProducts = computed(() => {
+    const start = (this.mobilePage() - 1) * this.mobilePageSize;
+    return this.filteredProducts().slice(start, start + this.mobilePageSize);
+  });
+
+  mobileTotalPages = computed(() =>
+    Math.ceil(this.filteredProducts().length / this.mobilePageSize),
+  );
+
+  mobilePageNumbers = computed(() =>
+    Array.from({ length: this.mobileTotalPages() }, (_, i) => i + 1),
+  );
+
+  mobileGoToPage(page: number): void {
+    if (page < 1 || page > this.mobileTotalPages()) return;
+    this.mobilePage.set(page);
+  }
 
   filteredProducts = computed(() => {
     const term = this.search.query().trim().toLowerCase();
