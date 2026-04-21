@@ -42,80 +42,189 @@
 
     <!-- Orders table -->
   } @else {
-    <p-table
-      [value]="filteredOrders()"
-      [paginator]="true"
-      [rows]="10"
-      [rowsPerPageOptions]="[10, 25, 50]"
-      [showCurrentPageReport]="true"
-      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
-      responsiveLayout="scroll"
-      class="p-datatable-sm"
-    >
-      <ng-template pTemplate="header">
-        <tr>
-          <th>Order</th>
-          <th>Date</th>
-          <th>Total</th>
-          <th>Status</th>
-          <th>Update Status</th>
-        </tr>
-      </ng-template>
-
-      <ng-template pTemplate="body" let-order>
-        <tr
-          class="cursor-pointer"
+    <!-- ══════════════════════════════
+         MOBILE: Card list
+    ══════════════════════════════ -->
+    <div class="block md:hidden space-y-3 mb-4">
+      @for (order of mobilePaginatedOrders(); track order.id) {
+        <div
           role="button"
           tabindex="0"
+          class="bg-white border border-gray-200 rounded-xl p-4 cursor-pointer hover:border-gray-300 transition-colors"
           (click)="openDetail(order)"
           (keyup.enter)="openDetail(order)"
         >
-          <td>
-            <p class="text-sm font-semibold text-gray-900 mb-0.5">
-              #{{ order.id.slice(0, 8).toUpperCase() }}
-            </p>
-            <p class="text-xs text-gray-400">
+          <!-- Header -->
+          <div class="flex items-start justify-between gap-2 mb-3">
+            <div>
+              <p class="text-sm font-semibold text-gray-900">
+                #{{ order.id.slice(0, 8).toUpperCase() }}
+              </p>
+              <p class="text-xs text-gray-400 mt-0.5">
+                {{ order.created_at | date: 'MMM d, y · h:mm a' }}
+              </p>
+            </div>
+            <p-tag [value]="order.status | titlecase" [severity]="getSeverity(order.status)" />
+          </div>
+
+          <!-- Summary -->
+          <div class="flex items-center justify-between text-sm mb-3">
+            <span class="text-xs text-gray-500">
               {{ order.items.length }} item{{ order.items.length !== 1 ? 's' : '' }}
-            </p>
-          </td>
+            </span>
+            <span class="font-semibold text-gray-900">
+              GHS {{ order.total | number: '1.2-2' }}
+            </span>
+          </div>
 
-          <td class="text-sm text-gray-500">
-            {{ order.created_at | date: 'MMM d, y · h:mm a' }}
-          </td>
+          <!-- Update status -->
+          <div
+            role="button"
+            tabindex="0"
+            (click)="$event.stopPropagation()"
+            (keyup.enter)="$event.stopPropagation()"
+            class="pt-3 border-t border-gray-100"
+          >
+            <p-select
+              [ngModel]="order.status"
+              (ngModelChange)="updateStatus(order.id, $event)"
+              [options]="orderStatuses"
+              optionLabel="label"
+              optionValue="value"
+              styleClass="w-full !text-xs"
+            />
+          </div>
+        </div>
+      }
+    </div>
 
-          <td class="text-sm font-medium text-gray-900">GHS {{ order.total | number: '1.2-2' }}</td>
+    <!-- Mobile pagination -->
+    @if (mobileTotalPages() > 1) {
+      <div class="block md:hidden">
+        <div class="flex items-center justify-center gap-1 mt-2 mb-4">
+          <button
+            (click)="mobileGoToPage(mobilePage() - 1)"
+            [disabled]="mobilePage() === 1"
+            class="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 cursor-pointer hover:bg-gray-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <i class="pi pi-chevron-left" style="font-size: 0.7rem"></i>
+          </button>
 
-          <td>
-            <div
-              role="button"
-              tabindex="0"
-              (click)="$event.stopPropagation()"
-              (keyup.enter)="$event.stopPropagation()"
+          @for (page of mobilePageNumbers(); track page) {
+            <button
+              (click)="mobileGoToPage(page)"
+              class="w-9 h-9 flex items-center justify-center rounded-lg border text-sm cursor-pointer transition-all"
+              [class.bg-gray-900]="mobilePage() === page"
+              [class.text-white]="mobilePage() === page"
+              [class.border-gray-900]="mobilePage() === page"
+              [class.bg-white]="mobilePage() !== page"
+              [class.text-gray-700]="mobilePage() !== page"
+              [class.border-gray-200]="mobilePage() !== page"
             >
-              <p-tag [value]="order.status | titlecase" [severity]="getSeverity(order.status)" />
-            </div>
-          </td>
+              {{ page }}
+            </button>
+          }
 
-          <td>
-            <div
-              role="button"
-              tabindex="0"
-              (click)="$event.stopPropagation()"
-              (keyup.enter)="$event.stopPropagation()"
-            >
-              <p-select
-                [ngModel]="order.status"
-                (ngModelChange)="updateStatus(order.id, $event)"
-                [options]="orderStatuses"
-                optionLabel="label"
-                optionValue="value"
-                styleClass="w-full !text-xs"
-              />
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
+          <button
+            (click)="mobileGoToPage(mobilePage() + 1)"
+            [disabled]="mobilePage() === mobileTotalPages()"
+            class="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 cursor-pointer hover:bg-gray-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <i class="pi pi-chevron-right" style="font-size: 0.7rem"></i>
+          </button>
+        </div>
+        <p class="text-center text-xs text-gray-400 mb-4">
+          Showing {{ (mobilePage() - 1) * mobilePageSize + 1 }}–{{
+            mobilePage() * mobilePageSize > filteredOrders().length
+              ? filteredOrders().length
+              : mobilePage() * mobilePageSize
+          }}
+          of {{ filteredOrders().length }} order{{ filteredOrders().length !== 1 ? 's' : '' }}
+        </p>
+      </div>
+    }
+
+    <!-- ══════════════════════════════
+         DESKTOP: Table
+    ══════════════════════════════ -->
+    <div class="hidden md:block">
+      <p-table
+        [value]="filteredOrders()"
+        [paginator]="true"
+        [rows]="10"
+        [rowsPerPageOptions]="[10, 25, 50]"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
+        responsiveLayout="scroll"
+        class="p-datatable-sm"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Order</th>
+            <th>Date</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Update Status</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-order>
+          <tr
+            class="cursor-pointer"
+            role="button"
+            tabindex="0"
+            (click)="openDetail(order)"
+            (keyup.enter)="openDetail(order)"
+          >
+            <td>
+              <p class="text-sm font-semibold text-gray-900 mb-0.5">
+                #{{ order.id.slice(0, 8).toUpperCase() }}
+              </p>
+              <p class="text-xs text-gray-400">
+                {{ order.items.length }} item{{ order.items.length !== 1 ? 's' : '' }}
+              </p>
+            </td>
+
+            <td class="text-sm text-gray-500">
+              {{ order.created_at | date: 'MMM d, y · h:mm a' }}
+            </td>
+
+            <td class="text-sm font-medium text-gray-900">
+              GHS {{ order.total | number: '1.2-2' }}
+            </td>
+
+            <td>
+              <div
+                role="button"
+                tabindex="0"
+                (click)="$event.stopPropagation()"
+                (keyup.enter)="$event.stopPropagation()"
+              >
+                <p-tag [value]="order.status | titlecase" [severity]="getSeverity(order.status)" />
+              </div>
+            </td>
+
+            <td>
+              <div
+                role="button"
+                tabindex="0"
+                (click)="$event.stopPropagation()"
+                (keyup.enter)="$event.stopPropagation()"
+              >
+                <p-select
+                  [ngModel]="order.status"
+                  (ngModelChange)="updateStatus(order.id, $event)"
+                  [options]="orderStatuses"
+                  optionLabel="label"
+                  optionValue="value"
+                  styleClass="w-full !text-xs"
+                />
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
   }
 </div>
 
