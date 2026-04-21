@@ -64,7 +64,7 @@ export class ProductForm implements OnInit {
   categories = [
     { label: 'Women', value: 'women' },
     { label: 'Men', value: 'men' },
-    { label: 'Unisex',     value: 'unisex'      },
+    { label: 'Unisex', value: 'unisex' },
     { label: 'Accessories', value: 'accessories' },
   ];
 
@@ -158,34 +158,32 @@ export class ProductForm implements OnInit {
     if (!val) return;
     const validValues = this.sizeOptions.map((s) => s.value);
     if (!validValues.includes(val)) return;
-    const current = this.form.value.sizes ?? [];
+    const current = this.form.controls['sizes'].value ?? [];
     if (!current.includes(val)) {
-      this.form.patchValue({ sizes: [...current, val] });
+      this.form.controls['sizes'].setValue([...current, val]);
     }
     this.sizeInput = null;
   }
 
   removeSize(size: string): void {
-    this.form.patchValue({
-      sizes: (this.form.value.sizes ?? []).filter((s) => s !== size),
-    });
+    const current = this.form.controls['sizes'].value ?? [];
+    this.form.controls['sizes'].setValue(current.filter((s) => s !== size));
   }
 
   addColor(): void {
     const val = this.colorInput.trim();
     const capitalized = val.charAt(0).toUpperCase() + val.slice(1).toLowerCase();
     if (!capitalized) return;
-    const current = this.form.value.colors ?? [];
+    const current = this.form.controls['colors'].value ?? [];
     if (!current.includes(capitalized)) {
-      this.form.patchValue({ colors: [...current, capitalized] });
+      this.form.controls['colors'].setValue([...current, capitalized]);
     }
     this.colorInput = '';
   }
 
   removeColor(color: string): void {
-    this.form.patchValue({
-      colors: (this.form.value.colors ?? []).filter((c) => c !== color),
-    });
+    const current = this.form.controls['colors'].value ?? [];
+    this.form.controls['colors'].setValue(current.filter((c) => c !== color));
   }
 
   // ── Submit ─────────────────────────────────────────
@@ -203,8 +201,15 @@ export class ProductForm implements OnInit {
 
     this.submitting.set(true);
 
+    const raw = this.form.getRawValue();
     const payload = {
-      ...this.form.value,
+      name: raw.name,
+      description: raw.description,
+      price: raw.price,
+      category: raw.category,
+      stock_count: raw.stock_count,
+      sizes: raw.sizes ?? [],
+      colors: raw.colors ?? [],
       image_urls: this.imageUrls(),
     };
 

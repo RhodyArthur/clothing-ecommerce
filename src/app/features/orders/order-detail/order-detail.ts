@@ -13,31 +13,30 @@ import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-order-detail',
-  imports: [CommonModule, RouterLink,
-    ButtonModule, TagModule, DividerModule, TimelineModule],
+  imports: [CommonModule, RouterLink, ButtonModule, TagModule, DividerModule, TimelineModule],
   templateUrl: './order-detail.html',
 })
 export class OrderDetail implements OnInit, OnDestroy {
-  private route        = inject(ActivatedRoute);
+  private route = inject(ActivatedRoute);
   private orderService = inject(OrderService);
   private supabase = inject(Supabase);
   private channel: RealtimeChannel | null = null;
 
-  order   = signal<Order | null>(null);
+  order = signal<Order | null>(null);
   loading = signal(true);
   confirming = signal(false);
 
   // Order status timeline steps
   timelineSteps = [
-    { status: 'pending',   label: 'Order Placed',  icon: 'pi-clock'         },
-    { status: 'confirmed', label: 'Confirmed',      icon: 'pi-check-circle'  },
-    { status: 'shipped',   label: 'Shipped',        icon: 'pi-truck'         },
-    { status: 'delivered', label: 'Delivered',      icon: 'pi-box'           }
+    { status: 'pending', label: 'Order Placed', icon: 'pi-clock' },
+    { status: 'confirmed', label: 'Confirmed', icon: 'pi-check-circle' },
+    { status: 'shipped', label: 'Shipped', icon: 'pi-truck' },
+    { status: 'delivered', label: 'Delivered', icon: 'pi-box' },
   ];
 
   currentStepIndex = computed(() => {
     const status = this.order()?.status ?? 'pending';
-    const idx = this.timelineSteps.findIndex(s => s.status === status);
+    const idx = this.timelineSteps.findIndex((s) => s.status === status);
     return idx === -1 ? 0 : idx;
   });
 
@@ -51,8 +50,8 @@ export class OrderDetail implements OnInit, OnDestroy {
     return Math.round((o.total - itemsTotal) * 100) / 100;
   });
 
-  itemsTotal = computed(() =>
-    this.order()?.items.reduce((sum, i) => sum + i.price * i.quantity, 0) ?? 0
+  itemsTotal = computed(
+    () => this.order()?.items.reduce((sum, i) => sum + i.price * i.quantity, 0) ?? 0,
   );
 
   async ngOnInit(): Promise<void> {
@@ -60,65 +59,63 @@ export class OrderDetail implements OnInit, OnDestroy {
     if (!id) return;
 
     // Check local signal state first (avoids extra DB call)
-    const cached = this.orderService.orders().find(o => o.id === id);
+    const cached = this.orderService.orders().find((o) => o.id === id);
     if (cached) {
       this.order.set(cached);
       this.loading.set(false);
-      return;
+    } else {
+      // Fallback: fetch all orders then find this one
+      await this.orderService.fetchMyOrders();
+      const found = this.orderService.orders().find((o) => o.id === id) ?? null;
+      this.order.set(found);
+      this.loading.set(false);
     }
 
-    // Fallback: fetch all orders then find this one
-    await this.orderService.fetchMyOrders();
-    const found = this.orderService.orders().find(o => o.id === id) ?? null;
-    this.order.set(found);
-    this.loading.set(false);
+    // Always subscribe to realtime status changes for this order
+    this.channel = this.supabase.client
+      .channel(`order-${id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'orders',
+          filter: `id=eq.${id}`,
+        },
+        (payload) => {
+          const updated = payload.new as Partial<Order>;
+          this.order.update((current) => (current ? { ...current, ...updated } : current));
+        },
+      )
+      .subscribe();
+  }
 
-    // Subscribe to status changes on this specific order
-    const orderId = this.route.snapshot.paramMap.get('id');
-    if (orderId) {
-      this.channel = this.supabase.client
-        .channel(`order-${orderId}`)
-        .on(
-          'postgres_changes',
-          {
-            event:  'UPDATE',
-            schema: 'public',
-            table:  'orders',
-            filter: `id=eq.${orderId}`
-          },
-          (payload) => {
-            // Patch just the status on the existing order signal
-            const updated = payload.new as Order;
-            this.order.update(current =>
-              current ? { ...current, status: updated.status } : current
-            );
-          }
-        )
-        .subscribe();
+  getSeverity(
+    status: string,
+  ): 'success' | 'secondary' | 'info' | 'warn' | 'danger' | 'contrast' | null | undefined {
+    switch (status) {
+      case 'delivered':
+        return 'success';
+      case 'cancelled':
+        return 'danger';
+      case 'processing':
+        return 'info';
+      case 'shipped':
+        return 'warn';
+      default:
+        return 'secondary';
     }
   }
-
-  getSeverity(status: string): 'success' | 'secondary' | 'info' | 'warn' | 'danger' | 'contrast' | null | undefined {
-  switch (status) {
-    case 'delivered':
-      return 'success';
-    case 'cancelled':
-      return 'danger';
-    case 'processing':
-      return 'info';
-    case 'shipped':
-      return 'warn';
-    default:
-      return 'secondary';
-  }
-}
 
   resendWhatsApp(): void {
     const o = this.order();
     if (!o) return;
 
     const itemLines = o.items
-      .map(i => `• ${i.name} (${i.color}, ${i.size}) x${i.quantity} — GHS ${(i.price * i.quantity).toFixed(2)}`)
+      .map(
+        (i) =>
+          `• ${i.name} (${i.color}, ${i.size}) x${i.quantity} — GHS ${(i.price * i.quantity).toFixed(2)}`,
+      )
       .join('\n');
 
     const message = [
@@ -130,19 +127,15 @@ export class OrderDetail implements OnInit, OnDestroy {
       `*Delivery Address*`,
       o.delivery_address,
       ``,
-      `*Total: GHS ${o.total.toFixed(2)}*`
+      `*Total: GHS ${o.total.toFixed(2)}*`,
     ].join('\n');
 
     const whatsappNumber = environment.whatsappNumber;
-    window.open(
-      `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`,
-      '_blank'
-    );
+    window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, '_blank');
   }
 
-  canConfirmDelivery = computed(() =>
-    this.order()?.status === 'shipped' &&
-    !this.order()?.confirmed_by_customer
+  canConfirmDelivery = computed(
+    () => this.order()?.status === 'shipped' && !this.order()?.confirmed_by_customer,
   );
 
   async confirmDelivery(): Promise<void> {

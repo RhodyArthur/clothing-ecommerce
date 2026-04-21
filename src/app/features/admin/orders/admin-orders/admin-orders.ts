@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -57,6 +57,30 @@ export class AdminOrders implements OnInit {
     { label: 'Delivered', value: 'delivered' },
     { label: 'Cancelled', value: 'cancelled' },
   ];
+
+  mobilePage = signal(1);
+  readonly mobilePageSize = 10;
+
+  private resetMobilePage = effect(() => {
+    this.filteredOrders();
+    this.mobilePage.set(1);
+  });
+
+  mobilePaginatedOrders = computed(() => {
+    const start = (this.mobilePage() - 1) * this.mobilePageSize;
+    return this.filteredOrders().slice(start, start + this.mobilePageSize);
+  });
+
+  mobileTotalPages = computed(() => Math.ceil(this.filteredOrders().length / this.mobilePageSize));
+
+  mobilePageNumbers = computed(() =>
+    Array.from({ length: this.mobileTotalPages() }, (_, i) => i + 1),
+  );
+
+  mobileGoToPage(page: number): void {
+    if (page < 1 || page > this.mobileTotalPages()) return;
+    this.mobilePage.set(page);
+  }
 
   filteredOrders = computed(() => {
     const status = this.selectedStatus();

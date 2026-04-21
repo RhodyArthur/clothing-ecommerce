@@ -194,7 +194,7 @@
               </button>
             </div>
             <div class="flex flex-wrap gap-2">
-              @for (size of form.value.sizes ?? []; track size) {
+              @for (size of form.controls['sizes'].value ?? []; track size) {
                 <span
                   class="inline-flex items-center gap-1.5 px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full"
                 >
@@ -235,7 +235,7 @@
               </button>
             </div>
             <div class="flex flex-wrap gap-2">
-              @for (color of form.value.colors ?? []; track color) {
+              @for (color of form.controls['colors'].value ?? []; track color) {
                 <span
                   class="inline-flex items-center gap-1.5 px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full"
                 >

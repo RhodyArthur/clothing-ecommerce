@@ -53,35 +53,15 @@
       actionRouterLink="/admin/products/new"
     ></app-empty-state>
   } @else {
-    <p-table
-      [value]="filteredProducts()"
-      [loading]="loading()"
-      [paginator]="true"
-      [rows]="10"
-      [rowsPerPageOptions]="[10, 25, 50]"
-      [showCurrentPageReport]="true"
-      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
-      stripedRows
-      responsiveLayout="scroll"
-    >
-      <!-- Header -->
-      <ng-template pTemplate="header">
-        <tr>
-          <th class="w-12"></th>
-          <th>Product</th>
-          <th>Category</th>
-          <th>Price</th>
-          <th>Stock</th>
-          <th>Status</th>
-          <th class="text-right">Actions</th>
-        </tr>
-      </ng-template>
-
-      <!-- Thumbnail column -->
-      <ng-template pTemplate="body" let-product>
-        <tr>
-          <td class="w-12">
-            <div class="w-10 h-12 rounded overflow-hidden bg-gray-100 shrink-0">
+    <!-- ══════════════════════════════
+         MOBILE: Card list
+    ══════════════════════════════ -->
+    <div class="block md:hidden space-y-3 mb-4">
+      @for (product of mobilePaginatedProducts(); track product.id) {
+        <div class="bg-white border border-gray-200 rounded-xl p-4">
+          <div class="flex gap-3">
+            <!-- Thumbnail -->
+            <div class="w-14 h-18 rounded-lg overflow-hidden bg-gray-100 shrink-0">
               @if (product.image_urls[0]) {
                 <img
                   [src]="product.image_urls[0]"
@@ -90,83 +70,232 @@
                 />
               } @else {
                 <div class="w-full h-full flex items-center justify-center">
-                  <i class="pi pi-image text-gray-300" style="font-size: 0.75rem"></i>
+                  <i class="pi pi-image text-gray-300" style="font-size: 1rem"></i>
                 </div>
               }
             </div>
-          </td>
 
-          <!-- Name + description -->
-          <td>
-            <p class="text-sm font-medium text-gray-900 truncate">{{ product.name }}</p>
-            <p class="text-xs text-gray-400 truncate">{{ product.description }}</p>
-          </td>
-
-          <!-- Category -->
-          <td class="text-xs text-gray-500 capitalize">{{ product.category }}</td>
-
-          <!-- Price -->
-          <td class="text-sm font-medium text-gray-900">
-            GHS {{ product.price | number: '1.2-2' }}
-          </td>
-
-          <!-- Stock -->
-          <td
-            class="text-sm"
-            [class.text-red-500]="product.stock_count === 0"
-            [class.text-amber-500]="product.stock_count > 0 && product.stock_count <= 5"
-            [class.text-gray-700]="product.stock_count > 5"
-          >
-            {{ product.stock_count }}
-          </td>
-
-          <!-- Active toggle -->
-          <td>
-            <button
-              (click)="toggleActive(product)"
-              class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border-none cursor-pointer transition-all"
-              [class.bg-green-50]="product.is_active"
-              [class.text-green-700]="product.is_active"
-              [class.bg-gray-100]="!product.is_active"
-              [class.text-gray-500]="!product.is_active"
-            >
-              <span
-                class="w-1.5 h-1.5 rounded-full"
-                [class.bg-green-500]="product.is_active"
-                [class.bg-gray-400]="!product.is_active"
-              ></span>
-              {{ product.is_active ? 'Active' : 'Hidden' }}
-            </button>
-          </td>
+            <!-- Info -->
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between gap-2 mb-0.5">
+                <p class="text-sm font-semibold text-gray-900 truncate">{{ product.name }}</p>
+                <button
+                  (click)="toggleActive(product)"
+                  class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border-none cursor-pointer transition-all shrink-0"
+                  [class.bg-green-50]="product.is_active"
+                  [class.text-green-700]="product.is_active"
+                  [class.bg-gray-100]="!product.is_active"
+                  [class.text-gray-500]="!product.is_active"
+                >
+                  <span
+                    class="w-1.5 h-1.5 rounded-full"
+                    [class.bg-green-500]="product.is_active"
+                    [class.bg-gray-400]="!product.is_active"
+                  ></span>
+                  {{ product.is_active ? 'Active' : 'Hidden' }}
+                </button>
+              </div>
+              <p class="text-xs text-gray-400 truncate mb-2">{{ product.description }}</p>
+              <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-500">
+                <span class="capitalize">{{ product.category }}</span>
+                <span class="text-gray-300">·</span>
+                <span class="font-semibold text-gray-900">
+                  GHS {{ product.price | number: '1.2-2' }}
+                </span>
+                <span class="text-gray-300">·</span>
+                <span
+                  [class.text-red-500]="product.stock_count === 0"
+                  [class.text-amber-500]="product.stock_count > 0 && product.stock_count <= 5"
+                  [class.text-gray-700]="product.stock_count > 5"
+                >
+                  {{ product.stock_count }} in stock
+                </span>
+              </div>
+            </div>
+          </div>
 
           <!-- Actions -->
-          <td class="text-right">
-            <div class="flex items-center gap-1 justify-end">
-              <a
-                [routerLink]="['/admin/products', product.id, 'edit']"
-                class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition-colors no-underline"
-              >
-                <i class="pi pi-pencil" style="font-size: 0.75rem"></i>
-              </a>
-              <button
-                (click)="confirmDelete(product)"
-                class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-500 transition-colors bg-transparent border-none cursor-pointer"
-              >
-                <i class="pi pi-trash" style="font-size: 0.75rem"></i>
-              </button>
-            </div>
-          </td>
-        </tr>
-      </ng-template>
+          <div class="flex justify-end gap-2 mt-3 pt-3 border-t border-gray-100">
+            <a
+              [routerLink]="['/admin/products', product.id, 'edit']"
+              class="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-600 border border-gray-200 rounded-lg no-underline hover:bg-gray-50 transition-colors"
+            >
+              <i class="pi pi-pencil" style="font-size: 0.7rem"></i>
+              Edit
+            </a>
+            <button
+              (click)="confirmDelete(product)"
+              class="flex items-center gap-1.5 px-3 py-1.5 text-xs text-red-500 border border-red-100 rounded-lg bg-transparent cursor-pointer hover:bg-red-50 transition-colors"
+            >
+              <i class="pi pi-trash" style="font-size: 0.7rem"></i>
+              Delete
+            </button>
+          </div>
+        </div>
+      }
+    </div>
 
-      <!-- Empty message -->
-      <ng-template pTemplate="emptymessage">
-        <tr>
-          <td colspan="7" class="text-center py-8">
-            <app-empty-state title="No products found" icon="pi pi-inbox"></app-empty-state>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
+    <!-- Mobile pagination -->
+    @if (mobileTotalPages() > 1) {
+      <div class="block md:hidden">
+        <div class="flex items-center justify-center gap-1 mt-2 mb-4">
+          <button
+            (click)="mobileGoToPage(mobilePage() - 1)"
+            [disabled]="mobilePage() === 1"
+            class="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 cursor-pointer hover:bg-gray-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <i class="pi pi-chevron-left" style="font-size: 0.7rem"></i>
+          </button>
+
+          @for (page of mobilePageNumbers(); track page) {
+            <button
+              (click)="mobileGoToPage(page)"
+              class="w-9 h-9 flex items-center justify-center rounded-lg border text-sm cursor-pointer transition-all"
+              [class.bg-gray-900]="mobilePage() === page"
+              [class.text-white]="mobilePage() === page"
+              [class.border-gray-900]="mobilePage() === page"
+              [class.bg-white]="mobilePage() !== page"
+              [class.text-gray-700]="mobilePage() !== page"
+              [class.border-gray-200]="mobilePage() !== page"
+            >
+              {{ page }}
+            </button>
+          }
+
+          <button
+            (click)="mobileGoToPage(mobilePage() + 1)"
+            [disabled]="mobilePage() === mobileTotalPages()"
+            class="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 cursor-pointer hover:bg-gray-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <i class="pi pi-chevron-right" style="font-size: 0.7rem"></i>
+          </button>
+        </div>
+        <p class="text-center text-xs text-gray-400 mb-4">
+          Showing {{ (mobilePage() - 1) * mobilePageSize + 1 }}–{{
+            mobilePage() * mobilePageSize > filteredProducts().length
+              ? filteredProducts().length
+              : mobilePage() * mobilePageSize
+          }}
+          of {{ filteredProducts().length }} products
+        </p>
+      </div>
+    }
+    <div class="hidden md:block">
+      <p-table
+        [value]="filteredProducts()"
+        [loading]="loading()"
+        [paginator]="true"
+        [rows]="10"
+        [rowsPerPageOptions]="[10, 25, 50]"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
+        stripedRows
+        responsiveLayout="scroll"
+      >
+        <!-- Header -->
+        <ng-template pTemplate="header">
+          <tr>
+            <th class="w-12"></th>
+            <th>Product</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Status</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </ng-template>
+
+        <!-- Thumbnail column -->
+        <ng-template pTemplate="body" let-product>
+          <tr>
+            <td class="w-12">
+              <div class="w-10 h-12 rounded overflow-hidden bg-gray-100 shrink-0">
+                @if (product.image_urls[0]) {
+                  <img
+                    [src]="product.image_urls[0]"
+                    [alt]="product.name"
+                    class="w-full h-full object-cover"
+                  />
+                } @else {
+                  <div class="w-full h-full flex items-center justify-center">
+                    <i class="pi pi-image text-gray-300" style="font-size: 0.75rem"></i>
+                  </div>
+                }
+              </div>
+            </td>
+
+            <!-- Name + description -->
+            <td>
+              <p class="text-sm font-medium text-gray-900 truncate">{{ product.name }}</p>
+              <p class="text-xs text-gray-400 truncate">{{ product.description }}</p>
+            </td>
+
+            <!-- Category -->
+            <td class="text-xs text-gray-500 capitalize">{{ product.category }}</td>
+
+            <!-- Price -->
+            <td class="text-sm font-medium text-gray-900">
+              GHS {{ product.price | number: '1.2-2' }}
+            </td>
+
+            <!-- Stock -->
+            <td
+              class="text-sm"
+              [class.text-red-500]="product.stock_count === 0"
+              [class.text-amber-500]="product.stock_count > 0 && product.stock_count <= 5"
+              [class.text-gray-700]="product.stock_count > 5"
+            >
+              {{ product.stock_count }}
+            </td>
+
+            <!-- Active toggle -->
+            <td>
+              <button
+                (click)="toggleActive(product)"
+                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border-none cursor-pointer transition-all"
+                [class.bg-green-50]="product.is_active"
+                [class.text-green-700]="product.is_active"
+                [class.bg-gray-100]="!product.is_active"
+                [class.text-gray-500]="!product.is_active"
+              >
+                <span
+                  class="w-1.5 h-1.5 rounded-full"
+                  [class.bg-green-500]="product.is_active"
+                  [class.bg-gray-400]="!product.is_active"
+                ></span>
+                {{ product.is_active ? 'Active' : 'Hidden' }}
+              </button>
+            </td>
+
+            <!-- Actions -->
+            <td class="text-right">
+              <div class="flex items-center gap-1 justify-end">
+                <a
+                  [routerLink]="['/admin/products', product.id, 'edit']"
+                  class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition-colors no-underline"
+                >
+                  <i class="pi pi-pencil" style="font-size: 0.75rem"></i>
+                </a>
+                <button
+                  (click)="confirmDelete(product)"
+                  class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-500 transition-colors bg-transparent border-none cursor-pointer"
+                >
+                  <i class="pi pi-trash" style="font-size: 0.75rem"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <!-- Empty message -->
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="7" class="text-center py-8">
+              <app-empty-state title="No products found" icon="pi pi-inbox"></app-empty-state>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
   }
 </div>
