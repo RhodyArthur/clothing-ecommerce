@@ -88,55 +88,58 @@
         </p>
 
         <!-- Size selector -->
-        <div class="mb-6">
-          <div class="flex items-center justify-between mb-3">
-            <p class="text-sm font-medium text-gray-900">Select Size</p>
-            <button
-              (click)="openSizeGuide()"
-              class="text-xs text-gray-400 bg-transparent border-none cursor-pointer
-                    underline p-0 hover:text-gray-700 transition-colors"
-            >
-              Size Guide
-            </button>
-          </div>
-          <div class="flex flex-wrap gap-2">
-            @for (size of product()!.sizes; track size) {
+        @if (product()!.sizes.length) {
+          <div class="mb-6">
+            <div class="flex items-center justify-between mb-3">
+              <p class="text-sm font-medium text-gray-900">Select Size</p>
               <button
-                (click)="selectSize(size)"
-                class="min-w-13 px-3 py-2 text-xs rounded border cursor-pointer transition-all duration-150"
-                [class.bg-gray-900]="selectedSize() === size"
-                [class.text-white]="selectedSize() === size"
-                [class.border-gray-900]="selectedSize() === size"
-                [class.bg-white]="selectedSize() !== size"
-                [class.text-gray-700]="selectedSize() !== size"
-                [class.border-gray-300]="selectedSize() !== size"
+                (click)="openSizeGuide()"
+                class="text-xs text-gray-400 bg-transparent border-none cursor-pointer underline p-0 hover:text-gray-700 transition-colors"
               >
-                {{ size }}
+                Size Guide
               </button>
-            }
+            </div>
+            <div class="flex flex-wrap gap-2">
+              @for (size of product()!.sizes; track size) {
+                <button
+                  (click)="selectSize(size)"
+                  class="min-w-13 px-3 py-2 text-xs rounded border cursor-pointer transition-all duration-150"
+                  [class.bg-gray-900]="selectedSize() === size"
+                  [class.text-white]="selectedSize() === size"
+                  [class.border-gray-900]="selectedSize() === size"
+                  [class.bg-white]="selectedSize() !== size"
+                  [class.text-gray-700]="selectedSize() !== size"
+                  [class.border-gray-300]="selectedSize() !== size"
+                >
+                  {{ size }}
+                </button>
+              }
+            </div>
           </div>
-        </div>
+        }
 
         <!-- Color selector -->
-        <div class="mb-7">
-          <p class="text-sm font-medium text-gray-900 mb-3">Select Color</p>
-          <div class="flex flex-wrap gap-2">
-            @for (color of product()!.colors; track color) {
-              <button
-                (click)="selectColor(color)"
-                class="px-4 py-2 text-xs rounded border cursor-pointer transition-all duration-150"
-                [class.bg-gray-900]="selectedColor() === color"
-                [class.text-white]="selectedColor() === color"
-                [class.border-gray-900]="selectedColor() === color"
-                [class.bg-white]="selectedColor() !== color"
-                [class.text-gray-700]="selectedColor() !== color"
-                [class.border-gray-300]="selectedColor() !== color"
-              >
-                {{ color }}
-              </button>
-            }
+        @if (product()!.colors.length) {
+          <div class="mb-7">
+            <p class="text-sm font-medium text-gray-900 mb-3">Select Color</p>
+            <div class="flex flex-wrap gap-2">
+              @for (color of product()!.colors; track color) {
+                <button
+                  (click)="selectColor(color)"
+                  class="px-4 py-2 text-xs rounded border cursor-pointer transition-all duration-150"
+                  [class.bg-gray-900]="selectedColor() === color"
+                  [class.text-white]="selectedColor() === color"
+                  [class.border-gray-900]="selectedColor() === color"
+                  [class.bg-white]="selectedColor() !== color"
+                  [class.text-gray-700]="selectedColor() !== color"
+                  [class.border-gray-300]="selectedColor() !== color"
+                >
+                  {{ color }}
+                </button>
+              }
+            </div>
           </div>
-        </div>
+        }
 
         <div class="flex items-center gap-3 mb-3">
           <div class="flex-1">
