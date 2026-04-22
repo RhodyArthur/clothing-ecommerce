@@ -274,7 +274,7 @@
             <div class="flex-1 min-w-0">
               <p class="text-sm font-medium text-gray-900 truncate">{{ item.name }}</p>
               <p class="text-xs text-gray-400">
-                {{ item.color }} / {{ item.size }} · Qty {{ item.quantity }}
+                {{ parseColor(item.color).name }} / {{ item.size }} · Qty {{ item.quantity }}
               </p>
             </div>
             <span class="text-sm font-medium text-gray-900 shrink-0">
