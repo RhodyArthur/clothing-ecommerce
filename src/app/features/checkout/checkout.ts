@@ -12,6 +12,7 @@ import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { environment } from '../../../environments/environment';
+import { buildWhatsappUrl } from '../../core/utils/whatsapp';
 
 @Component({
   selector: 'app-checkout',
@@ -42,11 +43,9 @@ export class Checkout implements OnInit {
   grandTotal = computed(() => this.cartService.total() + this.shippingCost());
 
   form = this.fb.group({
-    // Contact
     fullName: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
     phoneNumber: ['', Validators.required],
-    // Delivery
     street: ['', Validators.required],
     city: ['', Validators.required],
     postalCode: ['', Validators.required],
@@ -54,13 +53,11 @@ export class Checkout implements OnInit {
   });
 
   ngOnInit(): void {
-    // Redirect if cart is empty
     if (this.cartService.isEmpty()) {
       this.router.navigate(['/cart']);
       return;
     }
 
-    // Pre-fill from auth profile if logged in
     const user = this.authService.currentUser();
     if (user) {
       this.form.patchValue({
@@ -83,39 +80,43 @@ export class Checkout implements OnInit {
     const deliveryAddress = `${street}, ${city}, ${postalCode}`;
 
     try {
-      // 1 — Save order to Supabase
+      if (!buildWhatsappUrl(environment.whatsappNumber, '')) {
+        throw new Error('WhatsApp ordering is temporarily unavailable.');
+      }
+
       const order = await this.orderService.createOrder({
         items: this.cartService.items(),
         total: this.grandTotal(),
         delivery_address: deliveryAddress,
       });
 
-      if (!order) throw new Error('Order creation failed');
+      if (!order) {
+        throw new Error('Order creation failed');
+      }
 
-      // 2 — Build WhatsApp message
       const itemLines = this.cartService
         .items()
         .map(
-          (i) =>
-            `• ${i.name} (${i.color}, ${i.size}) x${i.quantity} — GHS ${(i.price * i.quantity).toFixed(2)}`,
+          (item) =>
+            `• ${item.name} (${item.color}, ${item.size}) x${item.quantity} - GHS ${(item.price * item.quantity).toFixed(2)}`,
         )
         .join('\n');
 
       const message = [
-        `🛍 *New Order — #${order.id.slice(0, 8).toUpperCase()}*`,
-        ``,
-        `*Customer Details*`,
+        `🛍 *New Order - #${order.id.slice(0, 8).toUpperCase()}*`,
+        '',
+        '*Customer Details*',
         `Name: ${fullName}`,
         `Email: ${email}`,
         `Phone: ${phoneNumber}`,
-        ``,
-        `*Order Items*`,
+        '',
+        '*Order Items*',
         itemLines,
-        ``,
-        `*Delivery Address*`,
+        '',
+        '*Delivery Address*',
         deliveryAddress,
         orderNotes ? `Notes: ${orderNotes}` : '',
-        ``,
+        '',
         `*Subtotal:* GHS ${this.cartService.total().toFixed(2)}`,
         `*Shipping:* ${this.shippingCost() === 0 ? 'FREE' : `GHS ${this.shippingCost().toFixed(2)}`}`,
         `*Total: GHS ${this.grandTotal().toFixed(2)}*`,
@@ -123,23 +124,30 @@ export class Checkout implements OnInit {
         .filter(Boolean)
         .join('\n');
 
-      // 3 — Mark whatsapp_sent
-      await this.orderService.markWhatsappSent(order.id);
+      let handoffStarted = false;
+      const handleVisibilityChange = async () => {
+        if (document.visibilityState === 'hidden') {
+          handoffStarted = true;
+          return;
+        }
 
-      // 4 — Clear cart + navigate ONLY after user returns from WhatsApp
-      const handleReturn = () => {
-        if (document.visibilityState === 'visible') {
-          document.removeEventListener('visibilitychange', handleReturn);
-          this.cartService.clearCart();
-          this.router.navigate(['/orders', order.id]);
+        if (document.visibilityState === 'visible' && handoffStarted) {
+          document.removeEventListener('visibilitychange', handleVisibilityChange);
+          await this.orderService.markWhatsappSent(order.id);
+          await this.cartService.clearCart();
+          await this.router.navigate(['/orders', order.id]);
         }
       };
-      document.addEventListener('visibilitychange', handleReturn);
 
-      // 5 — Navigate to WhatsApp (no popup blocker risk)
-      const whatsappUrl = `https://wa.me/${environment.whatsappNumber}?text=${encodeURIComponent(message)}`;
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+
+      const whatsappUrl = buildWhatsappUrl(environment.whatsappNumber, message);
+      if (!whatsappUrl) {
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+        throw new Error('WhatsApp ordering is temporarily unavailable.');
+      }
+
       window.location.href = whatsappUrl;
-
     } catch (err: unknown) {
       const detail =
         err instanceof Error
@@ -152,14 +160,13 @@ export class Checkout implements OnInit {
         severity: 'error',
         summary: 'Order failed',
         detail,
-        life: 4000,
+        life: 2000,
       });
     } finally {
       this.submitting.set(false);
     }
   }
 
-  // Helper for template validation display
   isInvalid(field: string): boolean {
     const ctrl = this.form.get(field);
     return !!(ctrl?.invalid && ctrl?.touched);
