@@ -11,6 +11,7 @@ import { SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { ChipModule } from 'primeng/chip';
+import { ColorPickerModule } from 'primeng/colorpicker';
 import { MessageService } from 'primeng/api';
 import { parseColor } from '../../../../core/utils/color-map';
 
@@ -28,6 +29,7 @@ import { parseColor } from '../../../../core/utils/color-map';
     ButtonModule,
     ToastModule,
     ChipModule,
+    ColorPickerModule,
   ],
   providers: [MessageService],
   templateUrl: './product-form.html',
@@ -178,11 +180,9 @@ export class ProductForm implements OnInit {
     const val = this.colorInput.trim();
     if (!val) return;
     const capitalized = val.charAt(0).toUpperCase() + val.slice(1);
-    const entry = this.colorHex !== '#000000'
-      ? `${capitalized}|${this.colorHex}`
-      : capitalized;
+    const entry = this.colorHex !== '#000000' ? `${capitalized}|${this.colorHex}` : capitalized;
     const current = this.form.controls['colors'].value ?? [];
-    if (!current.some(c => parseColor(c).name.toLowerCase() === capitalized.toLowerCase())) {
+    if (!current.some((c) => parseColor(c).name.toLowerCase() === capitalized.toLowerCase())) {
       this.form.controls['colors'].setValue([...current, entry]);
     }
     this.colorInput = '';

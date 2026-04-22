@@ -230,13 +230,14 @@
               />
               <!-- Color picker -->
               <div class="relative flex items-center">
-                <input
-                  type="color"
+                <p-colorPicker
                   [(ngModel)]="colorHex"
                   [ngModelOptions]="{ standalone: true }"
-                  class="w-9 h-9 rounded-lg border border-gray-200 cursor-pointer p-0.5"
-                  title="Pick swatch color (optional)"
-                />
+                  format="hex"
+                  appendTo="body"
+                  class="w-9 h-9"
+                  inputId="color-input-picker"
+                ></p-colorPicker>
               </div>
               <button
                 type="button"
