@@ -5,16 +5,17 @@ import { Order as OrderService } from '../../../core/services/order';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { DividerModule } from 'primeng/divider';
-import { TimelineModule } from 'primeng/timeline';
+import { MessageModule } from 'primeng/message';
 import { Order } from '../../../core/models/order';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { Supabase } from '../../../core/services/supabase';
 import { environment } from '../../../../environments/environment';
 import { buildWhatsappUrl } from '../../../core/utils/whatsapp';
+import { parseColor } from '../../../core/utils/color-map';
 
 @Component({
   selector: 'app-order-detail',
-  imports: [CommonModule, RouterLink, ButtonModule, TagModule, DividerModule, TimelineModule],
+  imports: [CommonModule, RouterLink, ButtonModule, TagModule, DividerModule, MessageModule],
   templateUrl: './order-detail.html',
 })
 export class OrderDetail implements OnInit, OnDestroy {
@@ -26,6 +27,7 @@ export class OrderDetail implements OnInit, OnDestroy {
   order = signal<Order | null>(null);
   loading = signal(true);
   confirming = signal(false);
+  parseColor = parseColor;
 
   // Order status timeline steps
   timelineSteps = [
@@ -115,7 +117,7 @@ export class OrderDetail implements OnInit, OnDestroy {
     const itemLines = o.items
       .map(
         (i) =>
-          `• ${i.name} (${i.color}, ${i.size}) x${i.quantity} — GHS ${(i.price * i.quantity).toFixed(2)}`,
+          `• ${i.name} (${parseColor(i.color).name}, ${i.size}) x${i.quantity} — GHS ${(i.price * i.quantity).toFixed(2)}`,
       )
       .join('\n');
 
@@ -144,9 +146,12 @@ export class OrderDetail implements OnInit, OnDestroy {
   );
 
   async confirmDelivery(): Promise<void> {
+    if (!this.order() || this.confirming()) return;
     this.confirming.set(true);
     const success = await this.orderService.confirmDelivery(this.order()!.id);
-    if (!success) {
+    if (success) {
+      this.order.update((o) => (o ? { ...o, confirmed_by_customer: true } : o));
+    } else {
       // show error — keep existing toast pattern
     }
     this.confirming.set(false);
