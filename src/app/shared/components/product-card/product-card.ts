@@ -25,8 +25,13 @@ export class ProductCard {
     return this.wishlistService.has(this.product().id);
   }
 
-  // True when product has only one option — can add directly
+  isOutOfStock(): boolean {
+    return (this.product().stock_count ?? 0) === 0;
+  }
+
+  // True when product has only one option and is in stock — can add directly
   canQuickAdd(): boolean {
+    if (this.isOutOfStock()) return false;
     const p = this.product();
     return (p.sizes?.length ?? 0) <= 1 && (p.colors?.length ?? 0) <= 1;
   }
@@ -40,6 +45,8 @@ export class ProductCard {
   quickAdd(event: Event): void {
     event.preventDefault();
     event.stopPropagation();
+
+    if (this.isOutOfStock()) return;
 
     const p = this.product();
 
@@ -64,6 +71,8 @@ export class ProductCard {
   onMobileCartClick(event: Event): void {
     event.preventDefault();
     event.stopPropagation();
+
+    if (this.isOutOfStock()) return;
 
     if (this.canQuickAdd()) {
       this.quickAdd(event);
