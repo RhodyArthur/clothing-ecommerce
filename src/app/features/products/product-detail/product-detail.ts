@@ -18,6 +18,7 @@ import { ProductCard } from '../../../shared/components/product-card/product-car
 import { SizeGuide } from '../../../shared/components/size-guide/size-guide';
 import { Auth } from '../../../core/services/auth';
 import { EmptyState } from '../../../shared/components/empty-state/empty-state';
+import { parseColor } from '../../../core/utils/color-map';
 
 @Component({
   selector: 'app-product-detail',
@@ -55,6 +56,7 @@ export class ProductDetail implements OnInit {
   selectedSize = signal<string>('');
   selectedColor = signal<string>('');
   quantity = signal<number>(1);
+  parseColor = parseColor;
 
   @ViewChild(SizeGuide) sizeGuide!: SizeGuide;
 

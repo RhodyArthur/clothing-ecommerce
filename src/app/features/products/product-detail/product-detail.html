@@ -136,25 +136,55 @@
         @if (product()!.colors.length) {
           <div class="mb-7">
             <p class="text-sm font-medium text-gray-900 mb-3">
-              Select Color
+              Color
               @if (selectedColor()) {
-                <span class="font-normal text-gray-500 ml-1">— {{ selectedColor() }}</span>
+                <span class="font-normal text-gray-500 ml-1">
+                  — {{ parseColor(selectedColor()).name }}
+                </span>
               }
             </p>
             <div class="flex flex-wrap gap-2">
-              @for (color of product()!.colors; track color) {
-                <button
-                  (click)="selectColor(color)"
-                  class="px-4 py-2 text-xs rounded border cursor-pointer transition-all duration-150"
-                  [class.bg-gray-900]="selectedColor() === color"
-                  [class.text-white]="selectedColor() === color"
-                  [class.border-gray-900]="selectedColor() === color"
-                  [class.bg-white]="selectedColor() !== color"
-                  [class.text-gray-700]="selectedColor() !== color"
-                  [class.border-gray-300]="selectedColor() !== color"
-                >
-                  {{ color }}
-                </button>
+              @for (raw of product()!.colors; track raw) {
+                @let color = parseColor(raw);
+                @if (color.hex) {
+                  <!-- Swatch button -->
+                  <button
+                    (click)="selectColor(raw)"
+                    class="w-9 h-9 rounded-full border-2 cursor-pointer 
+                          transition-all duration-150 relative"
+                    [style.background]="color.hex"
+                    [class.border-gray-900]="selectedColor() === raw"
+                    [class.scale-110]="selectedColor() === raw"
+                    [class.border-transparent]="selectedColor() !== raw"
+                    [style.outline]="selectedColor() !== raw ? '1px solid #d1d5db' : 'none'"
+                    [title]="color.name"
+                    [attr.aria-label]="color.name"
+                  >
+                    @if (selectedColor() === raw) {
+                      <span class="absolute inset-0 flex items-center justify-center">
+                        <i class="pi pi-check" 
+                          style="font-size: 10px; color: white; 
+                                  text-shadow: 0 0 3px rgba(0,0,0,0.6)">
+                        </i>
+                      </span>
+                    }
+                  </button>
+                } @else {
+                  <!-- Text pill fallback -->
+                  <button
+                    (click)="selectColor(raw)"
+                    class="px-4 py-2 text-xs rounded border cursor-pointer 
+                          transition-all duration-150"
+                    [class.bg-gray-900]="selectedColor() === raw"
+                    [class.text-white]="selectedColor() === raw"
+                    [class.border-gray-900]="selectedColor() === raw"
+                    [class.bg-white]="selectedColor() !== raw"
+                    [class.text-gray-700]="selectedColor() !== raw"
+                    [class.border-gray-300]="selectedColor() !== raw"
+                  >
+                    {{ color.name }}
+                  </button>
+                }
               }
             </div>
           </div>

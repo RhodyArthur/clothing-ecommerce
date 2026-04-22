@@ -13,6 +13,7 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { environment } from '../../../environments/environment';
 import { buildWhatsappUrl } from '../../core/utils/whatsapp';
+import { parseColor } from '../../core/utils/color-map';
 
 @Component({
   selector: 'app-checkout',
@@ -95,12 +96,12 @@ export class Checkout implements OnInit {
       }
 
       const itemLines = this.cartService
-        .items()
-        .map(
-          (item) =>
-            `• ${item.name} (${item.color}, ${item.size}) x${item.quantity} - GHS ${(item.price * item.quantity).toFixed(2)}`,
-        )
-        .join('\n');
+      .items()
+      .map(
+        (i) =>
+          `• ${i.name} (${parseColor(i.color).name}, ${i.size}) x${i.quantity} — GHS ${(i.price * i.quantity).toFixed(2)}`,
+      )
+      .join('\n');
 
       const message = [
         `🛍 *New Order - #${order.id.slice(0, 8).toUpperCase()}*`,
