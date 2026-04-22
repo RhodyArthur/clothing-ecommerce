@@ -39,6 +39,7 @@ export class ProductList implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
 
   // --- Filter state ---
+  searchQuery = signal('');
   selectedCategories = signal<string[]>([]);
   selectedSizes = signal<string[]>([]);
   selectedColors = signal<string[]>([]);
@@ -71,6 +72,15 @@ export class ProductList implements OnInit, OnDestroy {
   // --- Derived: filtered + sorted products ---
   filteredProducts = computed(() => {
     let products = this.productService.activeProducts();
+    const query = this.searchQuery().trim().toLowerCase();
+
+    if (query) {
+      products = products.filter((p) =>
+        [p.name, p.description, p.category]
+          .filter((value): value is string => Boolean(value))
+          .some((value) => value.toLowerCase().includes(query)),
+      );
+    }
 
     if (this.selectedCategories().length) {
       products = products.filter((p) =>
@@ -107,6 +117,7 @@ export class ProductList implements OnInit, OnDestroy {
   // Reset page when filters change
   resetPage = effect(() => {
     // Touch all filter signals to create dependency
+    this.searchQuery();
     this.selectedCategories();
     this.selectedSizes();
     this.selectedColors();
@@ -117,13 +128,27 @@ export class ProductList implements OnInit, OnDestroy {
     this.currentPage.set(1);
   });
 
+  pageTitle = computed(() => {
+    if (this.searchQuery()) {
+      return `Results for "${this.searchQuery()}"`;
+    }
+
+    if (this.selectedCategories().length === 1) {
+      return this.selectedCategories()[0];
+    }
+
+    return 'All Products';
+  });
+
   ngOnInit(): void {
-    // Pre-select category from query param (e.g. from navbar links)
     this.route.queryParams.subscribe((params) => {
-      if (params['category']) {
-        const cat = params['category'];
-        this.selectedCategories.set([cat.charAt(0).toUpperCase() + cat.slice(1)]);
-      }
+      const category = params['category'];
+      const query = typeof params['q'] === 'string' ? params['q'].trim() : '';
+
+      this.searchQuery.set(query);
+      this.selectedCategories.set(
+        category ? [category.charAt(0).toUpperCase() + category.slice(1)] : [],
+      );
     });
 
     this.productService.fetchProducts();
