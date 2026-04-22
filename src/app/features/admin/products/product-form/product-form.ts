@@ -12,6 +12,7 @@ import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { ChipModule } from 'primeng/chip';
 import { MessageService } from 'primeng/api';
+import { parseColor } from '../../../../core/utils/color-map';
 
 @Component({
   selector: 'app-product-form',
@@ -48,6 +49,8 @@ export class ProductForm implements OnInit {
   // Chip input helpers
   sizeInput: string | null = null;
   colorInput = '';
+  colorHex = '#000000';
+  parseColor = parseColor;
 
   sizeOptions = [
     { label: 'XS', value: 'XS' },
@@ -170,20 +173,25 @@ export class ProductForm implements OnInit {
     this.form.controls['sizes'].setValue(current.filter((s) => s !== size));
   }
 
+  // Replace existing addColor():
   addColor(): void {
     const val = this.colorInput.trim();
-    const capitalized = val.charAt(0).toUpperCase() + val.slice(1).toLowerCase();
-    if (!capitalized) return;
+    if (!val) return;
+    const capitalized = val.charAt(0).toUpperCase() + val.slice(1);
+    const entry = this.colorHex !== '#000000'
+      ? `${capitalized}|${this.colorHex}`
+      : capitalized;
     const current = this.form.controls['colors'].value ?? [];
-    if (!current.includes(capitalized)) {
-      this.form.controls['colors'].setValue([...current, capitalized]);
+    if (!current.some(c => parseColor(c).name.toLowerCase() === capitalized.toLowerCase())) {
+      this.form.controls['colors'].setValue([...current, entry]);
     }
     this.colorInput = '';
+    this.colorHex = '#000000';
   }
 
-  removeColor(color: string): void {
+  removeColor(raw: string): void {
     const current = this.form.controls['colors'].value ?? [];
-    this.form.controls['colors'].setValue(current.filter((c) => c !== color));
+    this.form.controls['colors'].setValue(current.filter((c) => c !== raw));
   }
 
   // ── Submit ─────────────────────────────────────────
