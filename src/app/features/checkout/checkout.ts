@@ -39,6 +39,7 @@ export class Checkout implements OnInit {
   authService = inject(Auth);
 
   submitting = signal(false);
+  parseColor = parseColor
 
   shippingCost = computed(() => (this.cartService.total() >= 50 ? 0 : 15));
   grandTotal = computed(() => this.cartService.total() + this.shippingCost());

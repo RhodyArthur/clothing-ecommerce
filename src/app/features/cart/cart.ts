@@ -7,6 +7,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { Cart as CartService } from '../../core/services/cart';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { EmptyState } from '../../shared/components/empty-state/empty-state';
+import { parseColor } from '../../core/utils/color-map';
 
 @Component({
   selector: 'app-cart',
@@ -17,6 +18,7 @@ import { EmptyState } from '../../shared/components/empty-state/empty-state';
 export class Cart {
   readonly cartService = inject(CartService);
   private confirmation = inject(ConfirmationService);
+  parseColor = parseColor;
 
   confirmClearCart(): void {
     this.confirmation.confirm({

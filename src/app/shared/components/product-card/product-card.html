@@ -20,20 +20,29 @@
       ></i>
     </button>
 
-    <!-- Mobile: quick cart icon (bottom-right) -->
-    <button
-      (click)="onMobileCartClick($event)"
-      class="absolute bottom-2 right-2 w-8 h-8 rounded-full bg-white border-none flex items-center justify-center cursor-pointer shadow-sm transition-transform duration-150 hover:scale-110 z-10 md:hidden"
-      aria-label="Add to cart"
-    >
-      <i class="pi pi-shopping-cart" style="font-size: 13px"></i>
-    </button>
+    <!-- Mobile: quick cart icon (bottom-right, hidden when out of stock) -->
+    @if (!isOutOfStock()) {
+      <button
+        (click)="onMobileCartClick($event)"
+        class="absolute bottom-2 right-2 w-8 h-8 rounded-full bg-white border-none flex items-center justify-center cursor-pointer shadow-sm transition-transform duration-150 hover:scale-110 z-10 md:hidden"
+        aria-label="Add to cart"
+      >
+        <i class="pi pi-shopping-cart" style="font-size: 13px"></i>
+      </button>
+    }
 
     <!-- Quick add / Select options — visible on md+ via hover (hidden on mobile) -->
     <div
       class="absolute bottom-0 left-0 right-0 hidden md:block translate-y-full md:group-hover:translate-y-0 transition-transform duration-300 ease-out z-10"
     >
-      @if (canQuickAdd()) {
+      @if (isOutOfStock()) {
+        <!-- Out of stock — disabled pill -->
+        <span
+          class="block w-36 mx-auto mb-2 py-2.5 bg-gray-300 text-gray-500 text-sm font-semibold tracking-wide text-center rounded-full shadow-sm cursor-not-allowed select-none"
+        >
+          Out of stock
+        </span>
+      } @else if (canQuickAdd()) {
         <!-- Single variant → add directly (styled pill button) -->
         <button
           (click)="quickAdd($event)"

@@ -179,7 +179,7 @@
                 <!-- Info -->
                 <div class="flex-1 min-w-0">
                   <p class="text-sm font-medium text-gray-900 truncate">{{ item.name }}</p>
-                  <p class="text-xs text-gray-400 mt-0.5">{{ item.color }} / {{ item.size }}</p>
+                  <p class="text-xs text-gray-400 mt-0.5">{{ parseColor(item.color).name }} / {{ item.size }}</p>
                   <p class="text-xs text-gray-400">Qty: {{ item.quantity }}</p>
                 </div>
 

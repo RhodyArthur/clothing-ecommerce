@@ -14,6 +14,7 @@ import { OrderStatus } from '../../../../core/models/order';
 import { Order } from '../../../../core/services/order';
 import { Order as OrderModel } from '../../../../core/models/order';
 import { EmptyState } from '../../../../shared/components/empty-state/empty-state';
+import { parseColor } from '../../../../core/utils/color-map';
 
 @Component({
   selector: 'app-admin-orders',
@@ -40,6 +41,7 @@ export class AdminOrders implements OnInit {
   selectedStatus = signal<OrderStatus | 'all'>('all');
   selectedOrder = signal<OrderModel | null>(null);
   detailVisible = signal(false);
+  parseColor = parseColor;
 
   statusOptions = [
     { label: 'All Orders', value: 'all' },

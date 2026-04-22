@@ -66,7 +66,7 @@
               </div>
 
               <!-- Color / Size -->
-              <p class="text-xs text-gray-400 mb-1">{{ item.color }} / {{ item.size }}</p>
+              <p class="text-xs text-gray-400 mb-1">{{ parseColor(item.color).name }} / {{ item.size }}</p>
 
               <!-- Unit price -->
               <p class="text-sm text-gray-600 mb-4">GHS {{ item.price | number: '1.2-2' }}</p>
@@ -80,7 +80,7 @@
                       cartService.updateQuantity(
                         item.product_id,
                         item.size,
-                        item.color,
+                        parseColor(item.color).name,
                         item.quantity - 1
                       )
                     "
@@ -98,7 +98,7 @@
                       cartService.updateQuantity(
                         item.product_id,
                         item.size,
-                        item.color,
+                        parseColor(item.color).name,
                         item.quantity + 1
                       )
                     "

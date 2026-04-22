@@ -10,7 +10,7 @@ import { MessageService } from 'primeng/api';
   imports: [RouterOutlet, Footer, Navbar, Toast],
   providers: [MessageService],
   template: `
-    <div class="flex flex-col min-h-vh">
+      <div class="flex flex-col min-h-screen">
       <p-toast position="top-right" /> 
       <app-navbar />
       <main class="flex-1">
