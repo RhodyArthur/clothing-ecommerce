@@ -51,8 +51,7 @@ export class Wishlist {
   }
 
   private onLogout(): void {
-    this._ids.set(new Set());
-    localStorage.removeItem('wishlist');
+    this._ids.set(new Set(this.loadFromStorage()));
   }
 
   // ── Public actions ─────────────────────────────────
