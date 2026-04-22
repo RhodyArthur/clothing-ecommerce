@@ -1,4 +1,5 @@
-import { Component, computed, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Product } from '../../../core/services/product';
 import { Cart } from '../../../core/services/cart';
@@ -10,14 +11,30 @@ import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { DividerModule } from 'primeng/divider';
 import { ToastModule } from 'primeng/toast';
+import { MessageModule } from 'primeng/message';
 import { SkeletonModule } from 'primeng/skeleton';
 import { MessageService } from 'primeng/api';
-import { ProductCard } from "../../../shared/components/product-card/product-card";
+import { ProductCard } from '../../../shared/components/product-card/product-card';
 import { SizeGuide } from '../../../shared/components/size-guide/size-guide';
+import { Auth } from '../../../core/services/auth';
+import { EmptyState } from '../../../shared/components/empty-state/empty-state';
+import { parseColor } from '../../../core/utils/color-map';
 
 @Component({
   selector: 'app-product-detail',
-  imports: [CommonModule, ButtonModule, TagModule, DividerModule, ToastModule, SkeletonModule, RouterLink, ProductCard, SizeGuide],
+  imports: [
+    CommonModule,
+    ButtonModule,
+    TagModule,
+    DividerModule,
+    ToastModule,
+    SkeletonModule,
+    MessageModule,
+    RouterLink,
+    ProductCard,
+    SizeGuide,
+    EmptyState,
+  ],
   providers: [MessageService],
   templateUrl: './product-detail.html',
   styleUrl: './product-detail.css',
@@ -25,10 +42,12 @@ import { SizeGuide } from '../../../shared/components/size-guide/size-guide';
 export class ProductDetail implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
   private messages = inject(MessageService);
   productService = inject(Product);
   cartService = inject(Cart);
   wishlistService = inject(Wishlist);
+  authService = inject(Auth);
 
   product = signal<prod | null>(null);
   loading = signal(true);
@@ -37,6 +56,7 @@ export class ProductDetail implements OnInit {
   selectedSize = signal<string>('');
   selectedColor = signal<string>('');
   quantity = signal<number>(1);
+  parseColor = parseColor;
 
   @ViewChild(SizeGuide) sizeGuide!: SizeGuide;
 
@@ -52,31 +72,40 @@ export class ProductDetail implements OnInit {
   );
 
   isWishlisted = computed(() =>
-    this.product() ? this.wishlistService.has(this.product()!.id) : false
+    this.product() ? this.wishlistService.has(this.product()!.id) : false,
   );
 
   inStock = computed(() => (this.product()?.stock_count ?? 0) > 0);
 
-  async ngOnInit(): Promise<void> {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (!id) {
-      this.router.navigate(['/products']);
-      return;
-    }
+  ngOnInit(): void {
+    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(async (params) => {
+      const id = params.get('id');
+      if (!id) {
+        this.router.navigate(['/products']);
+        return;
+      }
 
-    if (!this.productService.activeProducts().length) {
-      await this.productService.fetchProducts();
-    }
+      // Reset state for the new product
+      this.loading.set(true);
+      this.notFound.set(false);
+      this.product.set(null);
+      this.selectedSize.set('');
+      this.selectedColor.set('');
 
-    const found = await this.productService.getProductById(id);
-    if (!found) {
-      this.notFound.set(true);
-    } else {
-      this.product.set(found);
-      if (found.sizes?.length) this.selectedSize.set(found.sizes[0]);
-      if (found.colors?.length) this.selectedColor.set(found.colors[0]);
-    }
-    this.loading.set(false);
+      if (!this.productService.activeProducts().length) {
+        await this.productService.fetchProducts();
+      }
+
+      const found = await this.productService.getProductById(id);
+      if (!found) {
+        this.notFound.set(true);
+      } else {
+        this.product.set(found);
+        if (found.sizes?.length) this.selectedSize.set(found.sizes[0]);
+        if (found.colors?.length) this.selectedColor.set(found.colors[0]);
+      }
+      this.loading.set(false);
+    });
   }
 
   selectSize(size: string): void {
@@ -92,19 +121,19 @@ export class ProductDetail implements OnInit {
 
     this.cartService.addItem({
       product_id: p.id,
-      name:       p.name,
-      price:      p.price,
-      quantity:   this.quantity(),
-      size:       this.selectedSize(),
-      color:      this.selectedColor(),
-      image_url:  p.image_urls?.[0] ?? ''
+      name: p.name,
+      price: p.price,
+      quantity: this.quantity(),
+      size: this.selectedSize(),
+      color: this.selectedColor(),
+      image_url: p.image_urls?.[0] ?? '',
     });
 
     this.messages.add({
       severity: 'success',
       summary: 'Added to cart',
       detail: `${p.name} has been added to your cart`,
-      life: 2000
+      life: 2000,
     });
   }
 
@@ -116,9 +145,5 @@ export class ProductDetail implements OnInit {
   toggleWishlist(): void {
     const p = this.product();
     if (p) this.wishlistService.toggle(p.id);
-  }
-
-  get stars(): number[] {
-    return [1, 2, 3, 4, 5];
   }
 }

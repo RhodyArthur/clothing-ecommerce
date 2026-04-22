@@ -118,7 +118,7 @@ export class AdminProducts implements OnInit {
 
       if (error) throw error;
 
-      await this.productService.fetchProducts();
+      await this.productService.fetchAllProducts();
       this.messages.add({
         severity: 'success',
         summary: 'Deleted',
@@ -144,7 +144,7 @@ export class AdminProducts implements OnInit {
         .eq('id', product.id);
 
       if (error) throw error;
-      await this.productService.fetchProducts();
+      await this.productService.fetchAllProducts();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to toggle active state';
       this.messages.add({

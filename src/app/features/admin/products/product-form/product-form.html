@@ -216,16 +216,28 @@
             <label for="color-input" class="text-xs font-medium text-gray-700 mb-2 block"
               >Colors</label
             >
+
+            <!-- Input row -->
             <div class="flex gap-2 mb-3">
               <input
                 id="color-input"
                 pInputText
                 [(ngModel)]="colorInput"
                 [ngModelOptions]="{ standalone: true }"
-                placeholder="e.g. Black"
+                placeholder="e.g. Navy Blue"
                 class="flex-1"
                 (keydown.enter)="$event.preventDefault(); addColor()"
               />
+              <!-- Color picker -->
+              <div class="relative flex items-center">
+                <input
+                  type="color"
+                  [(ngModel)]="colorHex"
+                  [ngModelOptions]="{ standalone: true }"
+                  class="w-9 h-9 rounded-lg border border-gray-200 cursor-pointer p-0.5"
+                  title="Pick swatch color (optional)"
+                />
+              </div>
               <button
                 type="button"
                 (click)="addColor()"
@@ -234,15 +246,24 @@
                 Add
               </button>
             </div>
+
+            <!-- Chips -->
             <div class="flex flex-wrap gap-2">
-              @for (color of form.controls['colors'].value ?? []; track color) {
+              @for (raw of form.controls['colors'].value ?? []; track raw) {
+                @let color = parseColor(raw);
                 <span
                   class="inline-flex items-center gap-1.5 px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full"
                 >
-                  {{ color }}
+                  @if (color.hex) {
+                    <span
+                      class="w-3 h-3 rounded-full border border-gray-300 shrink-0"
+                      [style.background]="color.hex"
+                    ></span>
+                  }
+                  {{ color.name }}
                   <button
                     type="button"
-                    (click)="removeColor(color)"
+                    (click)="removeColor(raw)"
                     class="w-3.5 h-3.5 flex items-center justify-center rounded-full bg-gray-300 border-none cursor-pointer hover:bg-gray-400 text-white transition-colors"
                   >
                     <i class="pi pi-times" style="font-size: 8px"></i>

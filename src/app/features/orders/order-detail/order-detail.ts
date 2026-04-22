@@ -10,6 +10,7 @@ import { Order } from '../../../core/models/order';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { Supabase } from '../../../core/services/supabase';
 import { environment } from '../../../../environments/environment';
+import { buildWhatsappUrl } from '../../../core/utils/whatsapp';
 
 @Component({
   selector: 'app-order-detail',
@@ -130,8 +131,12 @@ export class OrderDetail implements OnInit, OnDestroy {
       `*Total: GHS ${o.total.toFixed(2)}*`,
     ].join('\n');
 
-    const whatsappNumber = environment.whatsappNumber;
-    window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, '_blank');
+    const whatsappUrl = buildWhatsappUrl(environment.whatsappNumber, message);
+    if (!whatsappUrl) {
+      return;
+    }
+
+    window.open(whatsappUrl, '_blank');
   }
 
   canConfirmDelivery = computed(

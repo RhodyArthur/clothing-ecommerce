@@ -1,13 +1,7 @@
 <div class="max-w-screen-2xl mx-auto px-4 md:px-8 py-8 md:py-10">
   <!-- Page header -->
   <div class="mb-6">
-    <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-1">
-      @if (selectedCategories().length === 1) {
-        {{ selectedCategories()[0] }}
-      } @else {
-        All Products
-      }
-    </h1>
+    <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-1">{{ pageTitle() }}</h1>
     <p class="text-sm text-gray-400">
       {{ filteredProducts().length }} product{{ filteredProducts().length !== 1 ? 's' : '' }}
     </p>
@@ -102,7 +96,7 @@
       } @else if (filteredProducts().length === 0) {
         <app-empty-state
           title="No products found"
-          description="Try adjusting your filters"
+          [description]="searchQuery() ? 'Try a different search or adjust your filters' : 'Try adjusting your filters'"
           icon="pi pi-search"
           actionLabel="Clear Filters"
           (action)="clearFilters(); closeFilters()"

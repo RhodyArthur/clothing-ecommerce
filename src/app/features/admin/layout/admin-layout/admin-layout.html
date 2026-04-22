@@ -21,9 +21,14 @@
     [class.-translate-x-full]="!sidebarOpen()"
   >
     <!-- Logo -->
-    <div class="flex items-center gap-2 px-6 py-5 border-b border-gray-100">
-      <a routerLink="/" class="text-base font-bold tracking-widest text-gray-900 no-underline">
-        TheFooseGuy
+    <div class="flex items-center justify-between gap-2 px-6 py-4.5 border-b border-gray-100">
+      <a routerLink="/" aria-label="Home" class="flex">
+        <img
+          src="/assets/images/logo.png"
+          alt="TheFooseGuy"
+          class="h-5 w-full object-contain"
+          loading="lazy"
+        />TheFooseGuy
       </a>
       <span class="text-xs font-medium text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
         Admin
