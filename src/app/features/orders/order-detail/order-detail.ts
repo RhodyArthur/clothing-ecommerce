@@ -45,13 +45,7 @@ export class OrderDetail implements OnInit, OnDestroy {
 
   isCancelled = computed(() => this.order()?.status === 'cancelled');
 
-  shippingCost = computed(() => {
-    const o = this.order();
-    if (!o) return 0;
-    // Derive from total — if total matches items sum, shipping was free
-    const itemsTotal = o.items.reduce((sum, i) => sum + i.price * i.quantity, 0);
-    return Math.round((o.total - itemsTotal) * 100) / 100;
-  });
+  isPickup = computed(() => this.order()?.delivery_address === 'Pick Up');
 
   itemsTotal = computed(
     () => this.order()?.items.reduce((sum, i) => sum + i.price * i.quantity, 0) ?? 0,

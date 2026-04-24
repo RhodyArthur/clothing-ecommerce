@@ -50,27 +50,39 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16">
       <!-- LEFT — Image -->
       <div class="md:sticky md:top-24 self-start">
-        <div class="overflow-hidden rounded-sm bg-gray-100" style="aspect-ratio: 3/4">
-          <img
-            [src]="product()!.image_urls[0] || 'assets/images/placeholder-image.png'"
-            [alt]="product()!.name"
-            class="w-full h-full object-cover"
-          />
-        </div>
+        <p-galleria
+          [value]="product()!.image_urls"
+          [numVisible]="4"
+          [showThumbnails]="product()!.image_urls.length > 1"
+          [showIndicators]="false"
+          [showItemNavigators]="product()!.image_urls.length > 1"
+          [showItemNavigatorsOnHover]="true"
+          [circular]="true"
+          containerStyleClass="rounded-sm overflow-hidden"
+        >
+          <!-- Main image -->
+          <ng-template #item let-img>
+            <div style="aspect-ratio: 3/4" class="bg-gray-100 w-full overflow-hidden">
+              <img
+                [src]="img"
+                [alt]="product()!.name"
+                class="w-full h-full object-cover"
+              />
+            </div>
+          </ng-template>
 
-        @if (product()!.image_urls.length > 1) {
-          <div class="flex gap-2 mt-3">
-            @for (img of product()!.image_urls; track img) {
-              <div
-                class="w-16 h-20 rounded overflow-hidden border border-gray-200 shrink-0 cursor-pointer"
-              >
-                <img [src]="img" [alt]="product()?.name" class="w-full h-full object-cover" />
-              </div>
-            }
-          </div>
-        }
+          <!-- Thumbnail -->
+          <ng-template #thumbnail let-img>
+            <div class="w-16 h-20 overflow-hidden bg-gray-100">
+              <img
+                [src]="img"
+                [alt]="product()!.name"
+                class="w-full h-full object-cover"
+              />
+            </div>
+          </ng-template>
+        </p-galleria>
       </div>
-
       <!-- RIGHT — Info -->
       <div class="pt-1">
         <!-- Category -->

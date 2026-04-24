@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -39,10 +39,8 @@ export class Checkout implements OnInit {
   authService = inject(Auth);
 
   submitting = signal(false);
-  parseColor = parseColor
-
-  shippingCost = computed(() => (this.cartService.total() >= 50 ? 0 : 15));
-  grandTotal = computed(() => this.cartService.total() + this.shippingCost());
+  parseColor = parseColor;
+  deliveryMethod = signal<'delivery' | 'pickup'>('delivery');
 
   form = this.fb.group({
     fullName: ['', Validators.required],
@@ -53,6 +51,22 @@ export class Checkout implements OnInit {
     postalCode: ['', Validators.required],
     orderNotes: [''],
   });
+
+  selectDeliveryMethod(method: 'delivery' | 'pickup'): void {
+    this.deliveryMethod.set(method);
+    const addressFields = ['street', 'city', 'postalCode'];
+    if (method === 'pickup') {
+      addressFields.forEach((f) => {
+        this.form.get(f)?.clearValidators();
+        this.form.get(f)?.updateValueAndValidity();
+      });
+    } else {
+      addressFields.forEach((f) => {
+        this.form.get(f)?.setValidators(Validators.required);
+        this.form.get(f)?.updateValueAndValidity();
+      });
+    }
+  }
 
   ngOnInit(): void {
     if (this.cartService.isEmpty()) {
@@ -79,7 +93,8 @@ export class Checkout implements OnInit {
     this.submitting.set(true);
 
     const { fullName, email, phoneNumber, street, city, postalCode, orderNotes } = this.form.value;
-    const deliveryAddress = `${street}, ${city}, ${postalCode}`;
+    const isPickup = this.deliveryMethod() === 'pickup';
+    const deliveryAddress = isPickup ? 'Pick Up' : `${street}, ${city}, ${postalCode}`;
 
     try {
       if (!buildWhatsappUrl(environment.whatsappNumber, '')) {
@@ -88,7 +103,7 @@ export class Checkout implements OnInit {
 
       const order = await this.orderService.createOrder({
         items: this.cartService.items(),
-        total: this.grandTotal(),
+        total: this.cartService.total(),
         delivery_address: deliveryAddress,
       });
 
@@ -97,12 +112,12 @@ export class Checkout implements OnInit {
       }
 
       const itemLines = this.cartService
-      .items()
-      .map(
-        (i) =>
-          `• ${i.name} (${parseColor(i.color).name}, ${i.size}) x${i.quantity} — GHS ${(i.price * i.quantity).toFixed(2)}`,
-      )
-      .join('\n');
+        .items()
+        .map(
+          (i) =>
+            `• ${i.name} (${parseColor(i.color).name}, ${i.size}) x${i.quantity} — GHS ${(i.price * i.quantity).toFixed(2)}`,
+        )
+        .join('\n');
 
       const message = [
         `🛍 *New Order - #${order.id.slice(0, 8).toUpperCase()}*`,
@@ -119,9 +134,10 @@ export class Checkout implements OnInit {
         deliveryAddress,
         orderNotes ? `Notes: ${orderNotes}` : '',
         '',
+        `*Fulfillment:* ${isPickup ? 'Pick Up' : 'Delivery'}`,
         `*Subtotal:* GHS ${this.cartService.total().toFixed(2)}`,
-        `*Shipping:* ${this.shippingCost() === 0 ? 'FREE' : `GHS ${this.shippingCost().toFixed(2)}`}`,
-        `*Total: GHS ${this.grandTotal().toFixed(2)}*`,
+        isPickup ? `*Delivery Fee:* Free (Pick Up)` : `*Delivery Fee:* GHS 20+ (paid to courier)`,
+        `*Order Total: GHS ${this.cartService.total().toFixed(2)}*`,
       ]
         .filter(Boolean)
         .join('\n');

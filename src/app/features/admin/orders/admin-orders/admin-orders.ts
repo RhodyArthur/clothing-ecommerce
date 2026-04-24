@@ -90,8 +90,8 @@ export class AdminOrders implements OnInit {
     return status === 'all' ? orders : orders.filter((o) => o.status === status);
   });
 
-  ngOnInit(): void {
-    this.orderService.fetchAllOrders();
+  async ngOnInit(): Promise<void> {
+    await this.orderService.fetchAllOrders();
   }
 
   openDetail(order: OrderModel): void {
@@ -102,11 +102,9 @@ export class AdminOrders implements OnInit {
   async updateStatus(orderId: string, status: OrderStatus): Promise<void> {
     const success = await this.orderService.updateOrderStatus(orderId, status);
     if (success) {
-      // Update selected order in dialog if open
-      const current = this.selectedOrder();
-      if (current?.id === orderId) {
-        this.selectedOrder.set({ ...current, status });
-      }
+      const updated = this.orderService.orders().find(o => o.id === orderId);
+      if (updated) this.selectedOrder.set(updated);
+
       this.messages.add({
         severity: 'success',
         summary: 'Updated',

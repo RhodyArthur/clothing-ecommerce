@@ -6,7 +6,7 @@ import { Cart } from '../../../core/services/cart';
 import { Wishlist } from '../../../core/services/wishlist';
 import { Product as prod } from '../../../core/models/product';
 import { CommonModule } from '@angular/common';
-
+import { GalleriaModule } from 'primeng/galleria';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { DividerModule } from 'primeng/divider';
@@ -34,6 +34,7 @@ import { parseColor } from '../../../core/utils/color-map';
     ProductCard,
     SizeGuide,
     EmptyState,
+    GalleriaModule
   ],
   providers: [MessageService],
   templateUrl: './product-detail.html',
