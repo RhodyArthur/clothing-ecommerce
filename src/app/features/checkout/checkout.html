@@ -73,76 +73,117 @@
 
         <!-- Delivery Address -->
         <div class="border border-gray-200 rounded-lg p-6">
-          <h2 class="text-base font-semibold text-gray-900 mb-5">Delivery Address</h2>
+          <h2 class="text-base font-semibold text-gray-900 mb-5">Fulfillment Method</h2>
 
-          <!-- Street Address -->
-          <div class="flex flex-col gap-1.5 mb-4">
-            <p-float-label variant="on">
-              <input
-                id="street"
-                pInputText
-                formControlName="street"
-                class="w-full"
-                [class.ng-invalid]="isInvalid('street')"
-                [class.ng-dirty]="isInvalid('street')"
-              />
-              <label for="street">Street Address <span class="text-red-500">*</span></label>
-            </p-float-label>
-            @if (isInvalid('street')) {
-              <span class="text-xs text-red-500">Street address is required</span>
-            }
+          <!-- Delivery / Pick Up toggle -->
+          <div class="flex gap-3 mb-5">
+            <button
+              type="button"
+              (click)="selectDeliveryMethod('delivery')"
+              class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border text-sm transition-all cursor-pointer"
+              [class.border-gray-900]="deliveryMethod() === 'delivery'"
+              [class.bg-gray-50]="deliveryMethod() === 'delivery'"
+              [class.font-semibold]="deliveryMethod() === 'delivery'"
+              [class.text-gray-900]="deliveryMethod() === 'delivery'"
+              [class.border-gray-200]="deliveryMethod() !== 'delivery'"
+              [class.text-gray-500]="deliveryMethod() !== 'delivery'"
+            >
+              <i class="pi pi-truck"></i>
+              Delivery
+            </button>
+            <button
+              type="button"
+              (click)="selectDeliveryMethod('pickup')"
+              class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border text-sm transition-all cursor-pointer"
+              [class.border-gray-900]="deliveryMethod() === 'pickup'"
+              [class.bg-gray-50]="deliveryMethod() === 'pickup'"
+              [class.font-semibold]="deliveryMethod() === 'pickup'"
+              [class.text-gray-900]="deliveryMethod() === 'pickup'"
+              [class.border-gray-200]="deliveryMethod() !== 'pickup'"
+              [class.text-gray-500]="deliveryMethod() !== 'pickup'"
+            >
+              <i class="pi pi-map-marker"></i>
+              Pick Up
+            </button>
           </div>
 
-          <!-- City + Postal Code -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div class="flex flex-col gap-1.5">
+          @if (deliveryMethod() === 'pickup') {
+            <div
+              class="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm text-gray-600"
+            >
+              <i class="pi pi-info-circle mr-2 text-gray-400"></i>
+              Pick-up location will be shared via WhatsApp after order confirmation.
+            </div>
+          } @else {
+            <!-- Street Address -->
+            <div class="flex flex-col gap-1.5 mb-4">
               <p-float-label variant="on">
                 <input
-                  id="city"
+                  id="street"
                   pInputText
-                  formControlName="city"
+                  formControlName="street"
                   class="w-full"
-                  [class.ng-invalid]="isInvalid('city')"
-                  [class.ng-dirty]="isInvalid('city')"
+                  [class.ng-invalid]="isInvalid('street')"
+                  [class.ng-dirty]="isInvalid('street')"
                 />
-                <label for="city">City <span class="text-red-500">*</span></label>
+                <label for="street">Street Address <span class="text-red-500">*</span></label>
               </p-float-label>
-              @if (isInvalid('city')) {
-                <span class="text-xs text-red-500">City is required</span>
+              @if (isInvalid('street')) {
+                <span class="text-xs text-red-500">Street address is required</span>
               }
             </div>
 
+            <!-- City + Postal Code -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div class="flex flex-col gap-1.5">
+                <p-float-label variant="on">
+                  <input
+                    id="city"
+                    pInputText
+                    formControlName="city"
+                    class="w-full"
+                    [class.ng-invalid]="isInvalid('city')"
+                    [class.ng-dirty]="isInvalid('city')"
+                  />
+                  <label for="city">City <span class="text-red-500">*</span></label>
+                </p-float-label>
+                @if (isInvalid('city')) {
+                  <span class="text-xs text-red-500">City is required</span>
+                }
+              </div>
+
+              <div class="flex flex-col gap-1.5">
+                <p-float-label variant="on">
+                  <input
+                    id="postalCode"
+                    pInputText
+                    formControlName="postalCode"
+                    class="w-full"
+                    [class.ng-invalid]="isInvalid('postalCode')"
+                    [class.ng-dirty]="isInvalid('postalCode')"
+                  />
+                  <label for="postalCode">Postal Code <span class="text-red-500">*</span></label>
+                </p-float-label>
+                @if (isInvalid('postalCode')) {
+                  <span class="text-xs text-red-500">Postal code is required</span>
+                }
+              </div>
+            </div>
+
+            <!-- Order Notes -->
             <div class="flex flex-col gap-1.5">
               <p-float-label variant="on">
-                <input
-                  id="postalCode"
-                  pInputText
-                  formControlName="postalCode"
-                  class="w-full"
-                  [class.ng-invalid]="isInvalid('postalCode')"
-                  [class.ng-dirty]="isInvalid('postalCode')"
-                />
-                <label for="postalCode">Postal Code <span class="text-red-500">*</span></label>
+                <textarea
+                  id="orderNotes"
+                  pTextarea
+                  formControlName="orderNotes"
+                  rows="3"
+                  class="w-full resize-none"
+                ></textarea>
+                <label for="orderNotes">Order Notes (Optional)</label>
               </p-float-label>
-              @if (isInvalid('postalCode')) {
-                <span class="text-xs text-red-500">Postal code is required</span>
-              }
             </div>
-          </div>
-
-          <!-- Order Notes -->
-          <div class="flex flex-col gap-1.5">
-            <p-float-label variant="on">
-              <textarea
-                id="orderNotes"
-                pTextarea
-                formControlName="orderNotes"
-                rows="3"
-                class="w-full resize-none"
-              ></textarea>
-              <label for="orderNotes">Order Notes (Optional)</label>
-            </p-float-label>
-          </div>
+          }
         </div>
 
         <!-- Place Order Button -->
@@ -179,7 +220,9 @@
                 <!-- Info -->
                 <div class="flex-1 min-w-0">
                   <p class="text-sm font-medium text-gray-900 truncate">{{ item.name }}</p>
-                  <p class="text-xs text-gray-400 mt-0.5">{{ parseColor(item.color).name }} / {{ item.size }}</p>
+                  <p class="text-xs text-gray-400 mt-0.5">
+                    {{ parseColor(item.color).name }} / {{ item.size }}
+                  </p>
                   <p class="text-xs text-gray-400">Qty: {{ item.quantity }}</p>
                 </div>
 
@@ -198,20 +241,27 @@
               <span class="text-gray-900">GHS {{ cartService.total() | number: '1.2-2' }}</span>
             </div>
 
-            <!-- Shipping -->
+            <!-- Delivery Fee (informational) -->
             <div class="flex justify-between text-sm text-gray-500">
-              <span>Shipping</span>
-              <span [class.text-green-600]="shippingCost() === 0" class="font-medium">
-                {{ shippingCost() === 0 ? 'FREE' : 'GHS ' + (shippingCost() | number: '1.2-2') }}
-              </span>
+              <span>Delivery Fee</span>
+              @if (deliveryMethod() === 'pickup') {
+                <span class="font-medium text-green-600">Free (Pick Up)</span>
+              } @else {
+                <span class="font-medium text-gray-400 italic">GHS 20+ (paid to courier)</span>
+              }
             </div>
           </div>
 
           <div class="border-t border-gray-100 pt-4 mb-5">
             <div class="flex justify-between text-base font-semibold text-gray-900">
               <span>Total</span>
-              <span>GHS {{ grandTotal() | number: '1.2-2' }}</span>
+              <span>GHS {{ cartService.total() | number: '1.2-2' }}</span>
             </div>
+            @if (deliveryMethod() === 'delivery') {
+              <p class="text-xs text-gray-400 mt-1">
+                Delivery fee is settled separately with the courier.
+              </p>
+            }
           </div>
 
           <!-- WhatsApp notice -->
