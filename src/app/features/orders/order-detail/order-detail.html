@@ -152,10 +152,12 @@
           <span>GHS {{ itemsTotal() | number: '1.2-2' }}</span>
         </div>
         <div class="flex justify-between text-sm text-gray-500">
-          <span>Shipping</span>
-          <span [class.text-green-600]="shippingCost() === 0">
-            {{ shippingCost() === 0 ? 'FREE' : 'GHS ' + (shippingCost() | number: '1.2-2') }}
-          </span>
+          <span>Delivery Fee</span>
+          @if (isPickup()) {
+            <span class="font-medium text-green-600">Free (Pick Up)</span>
+          } @else {
+            <span class="font-medium text-gray-400 italic">GHS 20+ (paid to courier)</span>
+          }
         </div>
         <div
           class="flex justify-between text-base font-semibold text-gray-900 pt-2 border-t border-gray-100 mt-1"
@@ -163,6 +165,9 @@
           <span>Total</span>
           <span>GHS {{ order()!.total | number: '1.2-2' }}</span>
         </div>
+        @if (!isPickup()) {
+          <p class="text-xs text-gray-400">Delivery fee is settled separately with the courier.</p>
+        }
       </div>
     </div>
 
@@ -170,9 +175,15 @@
          DELIVERY ADDRESS
     ══════════════════════════════ -->
     <div class="border border-gray-200 rounded-xl p-6 mb-5">
-      <h2 class="text-sm font-semibold text-gray-900 mb-3">Delivery Address</h2>
+      <h2 class="text-sm font-semibold text-gray-900 mb-3">
+        {{ isPickup() ? 'Fulfillment' : 'Delivery Address' }}
+      </h2>
       <div class="flex items-start gap-3">
-        <i class="pi pi-map-marker text-gray-400 mt-0.5" style="font-size: 0.875rem"></i>
+        <i
+          [class]="isPickup() ? 'pi pi-map-marker' : 'pi pi-truck'"
+          class="text-gray-400 mt-0.5"
+          style="font-size: 0.875rem"
+        ></i>
         <p class="text-sm text-gray-600 leading-relaxed">
           {{ order()!.delivery_address }}
         </p>

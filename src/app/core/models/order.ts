@@ -25,6 +25,10 @@ export interface Order {
   whatsapp_sent: boolean;
   confirmed_by_customer:   boolean;
   created_at: string;
+  profiles?: {
+    full_name: string;
+    phone: string;
+  } | null;
 }
 
 export interface CreateOrderPayload {
