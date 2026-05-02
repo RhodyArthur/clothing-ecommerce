@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { provideRouter } from '@angular/router';
 
 import { Checkout } from './checkout';
 import { Cart } from '../../core/services/cart';
@@ -24,6 +24,7 @@ describe('Checkout', () => {
     total: ReturnType<typeof vi.fn>;
     isEmpty: ReturnType<typeof vi.fn>;
     clearCart: ReturnType<typeof vi.fn>;
+    updateQuantity: ReturnType<typeof vi.fn>;
   };
   let orderMock: {
     createOrder: ReturnType<typeof vi.fn>;
@@ -49,6 +50,13 @@ describe('Checkout', () => {
       isEmpty: vi.fn(() => cartItems.length === 0),
       clearCart: vi.fn(async () => {
         cartItems = [];
+      }),
+      updateQuantity: vi.fn(async (productId: string, size: string, color: string, quantity: number) => {
+        cartItems = cartItems.map((item) =>
+          item.product_id === productId && item.size === size && item.color === color
+            ? { ...item, quantity }
+            : item,
+        );
       }),
     };
 
@@ -85,12 +93,7 @@ describe('Checkout', () => {
             }),
           },
         },
-        {
-          provide: Router,
-          useValue: {
-            navigate: vi.fn(async () => true),
-          },
-        },
+        provideRouter([]),
       ],
     }).compileComponents();
 
@@ -134,5 +137,14 @@ describe('Checkout', () => {
     });
     expect(cartMock.clearCart).toHaveBeenCalledTimes(1);
     expect(orderMock.markWhatsappSent).not.toHaveBeenCalled();
+  });
+
+  it('updates checkout item quantity without allowing zero quantity', async () => {
+    await component.updateCheckoutQuantity('shirt-1', 'M', 'Blue', 3);
+    await component.updateCheckoutQuantity('shirt-1', 'M', 'Blue', 0);
+
+    expect(cartMock.updateQuantity).toHaveBeenCalledTimes(1);
+    expect(cartMock.updateQuantity).toHaveBeenCalledWith('shirt-1', 'M', 'Blue', 3);
+    expect(cartItems[0].quantity).toBe(3);
   });
 });
