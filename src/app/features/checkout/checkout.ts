@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Cart } from '../../core/services/cart';
 import { Order } from '../../core/services/order';
 import { Auth } from '../../core/services/auth';
@@ -26,6 +26,7 @@ import { parseColor } from '../../core/utils/color-map';
     FloatLabelModule,
     ButtonModule,
     ToastModule,
+    RouterLink,
   ],
   providers: [MessageService],
   templateUrl: './checkout.html',
@@ -66,6 +67,19 @@ export class Checkout implements OnInit {
         this.form.get(f)?.updateValueAndValidity();
       });
     }
+  }
+
+  async updateCheckoutQuantity(
+    productId: string,
+    size: string,
+    color: string,
+    quantity: number,
+  ): Promise<void> {
+    if (this.submitting() || quantity < 1) {
+      return;
+    }
+
+    await this.cartService.updateQuantity(productId, size, color, quantity);
   }
 
   ngOnInit(): void {
