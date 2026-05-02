@@ -85,6 +85,10 @@ export class Checkout implements OnInit {
   }
 
   async placeOrder(): Promise<void> {
+    if (this.submitting()) {
+      return;
+    }
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -95,15 +99,21 @@ export class Checkout implements OnInit {
     const { fullName, email, phoneNumber, street, city, postalCode, orderNotes } = this.form.value;
     const isPickup = this.deliveryMethod() === 'pickup';
     const deliveryAddress = isPickup ? 'Pick Up' : `${street}, ${city}, ${postalCode}`;
+    const orderItems = this.cartService.items().map((item) => ({ ...item }));
+    const orderTotal = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
     try {
+      if (!orderItems.length) {
+        throw new Error('Your cart is empty.');
+      }
+
       if (!buildWhatsappUrl(environment.whatsappNumber, '')) {
         throw new Error('WhatsApp ordering is temporarily unavailable.');
       }
 
       const order = await this.orderService.createOrder({
-        items: this.cartService.items(),
-        total: this.cartService.total(),
+        items: orderItems,
+        total: orderTotal,
         delivery_address: deliveryAddress,
       });
 
@@ -111,8 +121,7 @@ export class Checkout implements OnInit {
         throw new Error('Order creation failed');
       }
 
-      const itemLines = this.cartService
-        .items()
+      const itemLines = orderItems
         .map(
           (i) =>
             `• ${i.name} (${parseColor(i.color).name}, ${i.size}) x${i.quantity} — GHS ${(i.price * i.quantity).toFixed(2)}`,
@@ -135,12 +144,14 @@ export class Checkout implements OnInit {
         orderNotes ? `Notes: ${orderNotes}` : '',
         '',
         `*Fulfillment:* ${isPickup ? 'Pick Up' : 'Delivery'}`,
-        `*Subtotal:* GHS ${this.cartService.total().toFixed(2)}`,
+        `*Subtotal:* GHS ${orderTotal.toFixed(2)}`,
         isPickup ? `*Delivery Fee:* Free (Pick Up)` : `*Delivery Fee:* GHS 20+ (paid to courier)`,
-        `*Order Total: GHS ${this.cartService.total().toFixed(2)}*`,
+        `*Order Total: GHS ${orderTotal.toFixed(2)}*`,
       ]
         .filter(Boolean)
         .join('\n');
+
+      await this.cartService.clearCart();
 
       let handoffStarted = false;
       const handleVisibilityChange = async () => {
@@ -152,7 +163,6 @@ export class Checkout implements OnInit {
         if (document.visibilityState === 'visible' && handoffStarted) {
           document.removeEventListener('visibilitychange', handleVisibilityChange);
           await this.orderService.markWhatsappSent(order.id);
-          await this.cartService.clearCart();
           await this.router.navigate(['/orders', order.id]);
         }
       };
